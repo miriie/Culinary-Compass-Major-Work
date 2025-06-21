@@ -128,7 +128,7 @@ a {
   transition: background-color 0.3s;
 }
 .dark-button:hover {
-  background-color: #2A6F97;
+  background-color: #1488c8;
 }
 
 .auth-button {
@@ -306,7 +306,8 @@ textarea {
 }
 .tags-filter label {
   display: inline-block;
-  background-color: white;
+  background-color: #0b3b4c;
+  color: white;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
@@ -321,8 +322,7 @@ textarea {
   display: none;
 }
 .tags-filter input[type="checkbox"]:checked + label {
-  background-color: #0b3b4c;
-  color: white;
+  background-color:#1488c8;
 }
 
 .tags-filter input[type="checkbox"]:disabled + label {
@@ -399,7 +399,7 @@ textarea {
 /* Utility and Misc */
 .wrapper {
   width: 100%;
-  height: 100%;
+  height: auto;
   border-radius: 40px;
 }
 .input-box input {
@@ -436,16 +436,23 @@ textarea {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  display: flex;
   justify-content: center;
   align-items: flex-start;
 }
+
+.profile-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
 .profile-page-pic {
   width: 100px;
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid white;
+  border: 3px solid #144552;
   margin-right: 20px;
 }
 .review-card {
@@ -533,7 +540,43 @@ textarea {
   cursor: pointer;
 }
 
+/* Post */
+.post-container {
+  width: 70%;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+  overflow: visible;
+  height: auto;
+}
+
+.input-box h3 {
+  margin-bottom: 8px;
+  color: #144552;
+}
+
+#register-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1em;
+  background-color: #2A6F97;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#register-button:hover {
+  background-color: #144552;
+}
+
+
 /* Tags filter inside posting recipes */
+
 .category-block {
   margin-bottom: 24px;
 }
@@ -560,8 +603,19 @@ textarea {
 }
 
 .dropdown-heading span {
-  transition: transform 0.2s ease;
+  transition: transform 0.4s ease;
 }
+
+.dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.dropdown-content.open {
+  max-height: 50000px; /* large enough to show full content */
+}
+
 
 /* Annotation */
 #annotation-sidebar {

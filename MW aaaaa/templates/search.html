@@ -4,9 +4,10 @@
 
 {% block content %}
     <!-- Search Filter-->
-    <div class="dropdown-wrapper">
-    <h3 onclick="toggleDropdown()" class="dropdown-heading">Filter by Tags <span id="dropdown-icon">⮟</span></h3>
-    <div class="search-bar dropdown-content" id="tagDropdown" style="max-height: 0; overflow: hidden; transition: max-height 0.4s ease;">
+    <h3 onclick="toggleDropdown('tagCategoryDropdown', this.querySelector('.dropdown-icon'))" class="dropdown-heading">
+        Tags: <span class="dropdown-icon">⮟</span>
+    </h3>
+    <div class="tag-categories dropdown-content" id="tagCategoryDropdown">
         <form id="search-bar" method="POST" action="/search">
             <div class="tags-filter">
                 {% for category, tags in tag_categories.items() %}

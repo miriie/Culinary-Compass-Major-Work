@@ -4,10 +4,13 @@
 
 {% block content %}   
     <div class="profile-header">
-        <img src="{{ url_for('static', filename=user['profile_picture']) }}" alt="Profile Picture" class="profile-page-pic">
-        <h1> {{ user['username'] }}'s Profile </h1>  
+        <div class = "profile-info">
+            <img src="{{ url_for('static', filename=user['profile_picture']) }}" alt="Profile Picture" class="profile-page-pic">
+            <h1> {{ user['username'] }}'s Profile </h1>  
+        </div>
         <br>
         {% if session.get('user_id') == user['id'] %}
+            <br>
             <a href="{{ url_for('post') }}" class="submit-button">Post a Recipe</a>
             <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
         {% endif %}      

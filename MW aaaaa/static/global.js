@@ -280,22 +280,24 @@ document.addEventListener("mousemove", (e) => {
 
 
 // Dropdown JS
-function toggleDropdown(id = "tagDropdown", iconId = "dropdown-icon") {
-const dropdown = document.getElementById(id);
-const icon = document.getElementById(iconId);
+function toggleDropdown(dropdownId, iconElement) {
+  const dropdown = document.getElementById(dropdownId);
+  const icon = iconElement;
 
-if (!dropdown || !icon) return;
+  if (!dropdown || !icon) return;
 
-const isOpen = dropdown.style.maxHeight && dropdown.style.maxHeight !== "0px";
+  const isOpen = dropdown.classList.contains('open');
 
-if (isOpen) {
-    dropdown.style.maxHeight = "0px";
+  if (isOpen) {
+    dropdown.classList.remove('open');
     icon.textContent = "⮟";
-} else {
-    dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+  } else {
+    dropdown.classList.add('open');
     icon.textContent = "⮝";
+  }
 }
-    }
+
+
 
 // Annotation JS
 document.addEventListener('DOMContentLoaded', function () {
