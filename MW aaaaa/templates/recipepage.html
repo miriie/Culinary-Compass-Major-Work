@@ -49,23 +49,22 @@
                 </form>
             </p>
         </div>
-    </div>
+        
+        <!-- Annotations -->
+        <button id="show-annotation-btn" style="display: none; position: absolute;">＋</button>
+        <form id="annotation-form" method="POST" style="display:none; margin-top: 20px;">
+            <input type="hidden" name="action" value="submit_annotation">
+            <input type="hidden" name="recipe_id" value="{{ recipe['id'] }}">
+            <input type="hidden" name="highlighted_text" id="highlighted-text">
 
-    <!-- Annotations -->
-    <button id="show-annotation-btn" style="display: none; position: absolute;">＋</button>
-    <form id="annotation-form" method="POST" style="display:none; margin-top: 20px;">
-        <input type="hidden" name="action" value="submit_annotation">
-        <input type="hidden" name="recipe_id" value="{{ recipe['id'] }}">
-        <input type="hidden" name="highlighted_text" id="highlighted-text">
+            <label for="annotation">Your Annotation:</label>
+            <textarea name="annotation_text" id="annotation" rows="3" required></textarea>
 
-        <label for="annotation">Your Annotation:</label>
-        <textarea name="annotation_text" id="annotation" rows="3" required></textarea>
+            <br>
+            <button type="submit">Save Annotation</button>
+        </form>
 
-        <br>
-        <button type="submit">Save Annotation</button>
-    </form>
-    
-    <div id="annotation-sidebar">
+        <div id="annotation-sidebar">
         <h3>Annotations</h3>
         {% if recipe.annotations %}
             <ul>
@@ -79,6 +78,7 @@
         {% else %}
             <p>No annotations yet.</p>
         {% endif %}
+        </div>
     </div>
 
     <div class="review-form">

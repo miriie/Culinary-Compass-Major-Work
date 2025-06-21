@@ -30,8 +30,10 @@
                         </div>
                     {% endfor %}
                     </div>
+                
                 <h3> Instructions: </h3>
-                    <input type="text" id="recipe_instructions" name="recipe_instructions" required>
+                <textarea id="recipe_instructions" name="recipe_instructions" rows="6" placeholder="Enter one step per line" required></textarea>
+                
                 <h3> Tags: </h3>
                     <div class="tags-filter">
                         {% for category, tags in tag_categories.items() %}

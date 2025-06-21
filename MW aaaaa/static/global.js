@@ -77,11 +77,11 @@
     function resetToInputFields() {
         timerArea.innerHTML = `
         <div class="time-inputs">
-            <input type="number" id="hours-input" placeholder="HH" min="0" max="23">
+            <input type="number" id="hours-input" placeholder="00" min="0" max="23">
             <span>:</span>
-            <input type="number" id="minutes-input" placeholder="MM" min="0" max="59">
+            <input type="number" id="minutes-input" placeholder="00" min="0" max="59">
             <span>:</span>
-            <input type="number" id="seconds-input" placeholder="SS" min="0" max="59">
+            <input type="number" id="seconds-input" placeholder="00" min="0" max="59">
         </div>
         `;
     }
