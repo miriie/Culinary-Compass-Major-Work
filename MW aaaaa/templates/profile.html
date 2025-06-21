@@ -2,21 +2,20 @@
 
 {% block title %} {{ user['username'] }}'s Profile - Culinary Compass{% endblock %}
 
-{% block content %}
-        
-        <div class="profile-header">
-            <img src="{{ url_for('static', filename=user['profile_picture']) }}" alt="Profile Picture" class="profile-page-pic">
-            <h1> {{ user['username'] }}'s Profile </h1>        
-        </div>
+{% block content %}   
+    <div class="profile-header">
+        <img src="{{ url_for('static', filename=user['profile_picture']) }}" alt="Profile Picture" class="profile-page-pic">
+        <h1> {{ user['username'] }}'s Profile </h1>  
+        <br>
+        {% if session.get('user_id') == user['id'] %}
+            <a href="{{ url_for('post') }}" class="submit-button">Post a Recipe</a>
+            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+        {% endif %}      
+    </div>
 
-        <div>
-            {% if session.get('user_id') == user['id'] %}
-                <a href="{{ url_for('post') }}" class="submit-button">Post a Recipe</a>
-                <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
-            {% endif %}
-        </div>
-
-        <div class="user-posts">
+    <div class="user-posts">
+        {% if created or favourites or reviews %}
+            {% if created %}
             <h1> Posted Recipes </h1>
             {% for created in created %}
                 <a href="{{ url_for('recipe_page', recipe_id=created['recipe_id']) }}">
@@ -29,7 +28,9 @@
                 </div>
                 </a>
             {% endfor %}
+            {% endif %}
             
+            {% if favourites %}
             <h1> Favourited Recipes </h1>
             {% for favourited in favourites %}
                 <a href="{{ url_for('recipe_page', recipe_id=favourited['recipe_id']) }}">
@@ -42,7 +43,9 @@
                 </div>
                 </a>
             {% endfor %}
+            {% endif %}
 
+            {% if reviews %}
             <h1> Posted Reviews </h1>
             {% for review in reviews %}
                 <a href="{{ url_for('recipe_page', recipe_id=review['recipe_id']) }}">
@@ -57,5 +60,9 @@
                 </div>
                 </a>
             {% endfor %}
-        </div>
+            {% endif %}
+        {% else %}
+            <h1> No activity yet. </h1>   
+        {% endif %}
+    </div>
 {% endblock %}

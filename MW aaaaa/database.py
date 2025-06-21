@@ -63,10 +63,12 @@ def initialise_database():
     create_table_annotations = '''
     CREATE TABLE annotations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        recipe_id INTEGER,
+        recipe_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
         highlighted_text TEXT,
         annotation_text TEXT,
-        FOREIGN KEY (recipe_id) REFERENCES recipes(id)
+        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );'''
 
     cursor.execute(create_table_users)

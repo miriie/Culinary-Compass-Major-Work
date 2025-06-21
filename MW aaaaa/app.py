@@ -26,6 +26,7 @@ def get_db_connection():
 def recipe_page(recipe_id):
     connection = get_db_connection()
     cursor = connection.cursor()
+    connection.execute("PRAGMA foreign_keys = ON;")
 
     if request.method == 'POST':
         user_id = session['user_id']
@@ -65,8 +66,8 @@ def recipe_page(recipe_id):
             highlighted_text = request.form['highlighted_text']
             annotation_text = request.form['annotation_text']
             connection.execute(
-                'INSERT INTO annotations (recipe_id, highlighted_text, annotation_text) VALUES (?, ?, ?)',
-                (recipe_id, highlighted_text, annotation_text)
+                'INSERT INTO annotations (recipe_id, user_id, highlighted_text, annotation_text) VALUES (?, ?, ?, ?)',
+                (recipe_id, user_id, highlighted_text, annotation_text)
             )
         
         connection.commit()
@@ -90,19 +91,22 @@ def recipe_page(recipe_id):
     '''
     reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
 
-    query_annotations = '''
-    SELECT highlighted_text, annotation_text 
-    FROM annotations 
-    WHERE recipe_id = ?
-    '''
-    annotations = connection.execute(query_annotations, (recipe_id,)).fetchall()
-
+    # Load annotations and is favourited if logged in 
     is_favourited = False
     if 'user_id' in session:
         user_id = session['user_id']
         is_favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone() is not None
+        query_annotations = '''
+        SELECT annotations.highlighted_text, annotations.annotation_text 
+        FROM annotations
+        JOIN users ON annotations.user_id = users.id
+        WHERE annotations.recipe_id = ? AND annotations.user_id = ?
+        '''
+        annotations = connection.execute(query_annotations, (recipe_id, user_id)).fetchall()
+    else:
+        annotations = []
 
-    connection.close()
+        connection.close()
 
     if recipe:
         # sorting tags

@@ -9,11 +9,11 @@
             {% if session.get('logged_in') %}
             <form method="POST" style="display:inline;">
                 <input type="hidden" name="action" value="toggle_favourite">
-                <button type="submit" class="favourite-button">
+                <button type="submit" class="dark-button">
                         {% if is_favourited %}
                             ❤️ Favourited
                         {% else %}
-                            🖤 Favourite
+                            🤍 Favourite
                         {% endif %}
                 </button>
             </form>
@@ -51,6 +51,7 @@
         </div>
         
         <!-- Annotations -->
+        {% if session.get('logged_in') %}
         <button id="show-annotation-btn" style="display: none; position: absolute;">＋</button>
         <form id="annotation-form" method="POST" style="display:none; margin-top: 20px;">
             <input type="hidden" name="action" value="submit_annotation">
@@ -65,20 +66,22 @@
         </form>
 
         <div id="annotation-sidebar">
-        <h3>Annotations</h3>
-        {% if recipe.annotations %}
-            <ul>
-                {% for annotation in recipe.annotations %}
-                    <li>
-                        <strong>“{{ annotation.highlighted_text }}”</strong><br>
-                        {{ annotation.annotation_text }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No annotations yet.</p>
-        {% endif %}
+            <h3>Annotations</h3>
+            {% if recipe.annotations %}
+                <div class="annotations-container">
+                    {% for annotation in recipe.annotations %}
+                        <div class="annotation-box">
+                            <p class="highlight">“{{ annotation.highlighted_text }}”</p>
+                            <p class="note">{{ annotation.annotation_text }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No annotations yet.</p>
+            {% endif %}
         </div>
+
+        {% endif %}
     </div>
 
     <div class="review-form">
