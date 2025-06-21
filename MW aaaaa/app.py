@@ -61,6 +61,14 @@ def recipe_page(recipe_id):
             else:
                 cursor.execute("INSERT INTO favourites (recipe_id, user_id) VALUES (?, ?)", (recipe_id, user_id))
         
+        elif action == 'submit_annotation':
+            highlighted_text = request.form['highlighted_text']
+            annotation_text = request.form['annotation_text']
+            connection.execute(
+                'INSERT INTO annotations (recipe_id, highlighted_text, annotation_text) VALUES (?, ?, ?)',
+                (recipe_id, highlighted_text, annotation_text)
+            )
+        
         connection.commit()
         return redirect(url_for('recipe_page', recipe_id=recipe_id))
     
@@ -75,19 +83,24 @@ def recipe_page(recipe_id):
 
     # Fetch reviews for the recipe
     query_reviews = '''
-    SELECT users.username, reviews.profile_picture, reviews.title AS review_title, 
-           reviews.review, reviews.rating, reviews.date
+    SELECT users.username, reviews.profile_picture, reviews.title AS review_title, reviews.review, reviews.rating, reviews.date
     FROM reviews
     JOIN users ON reviews.user_id = users.id
     WHERE reviews.recipe_id = ?
     '''
+    reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
+
+    query_annotations = '''
+    SELECT highlighted_text, annotation_text 
+    FROM annotations 
+    WHERE recipe_id = ?
+    '''
+    annotations = connection.execute(query_annotations, (recipe_id,)).fetchall()
 
     is_favourited = False
     if 'user_id' in session:
         user_id = session['user_id']
         is_favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone() is not None
-
-    reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
 
     connection.close()
 
@@ -109,7 +122,6 @@ def recipe_page(recipe_id):
             "writer_username": recipe['writer_username'],
             "writer_id": recipe['writer_id'],
             "writer_pic": recipe['writer_pic'],
-            "id": recipe['id'],
             "title": recipe['title'],
             "instructions": recipe['instructions'],
             "intro": recipe['intro'],
@@ -118,6 +130,12 @@ def recipe_page(recipe_id):
             "tags": tags,
             "rating": recipe['rating'] if reviews else "N/A",
             "image": recipe['image'],  
+            "annotations": [
+                {
+                    "highlighted_text": a['highlighted_text'],
+                    "annotation_text": a['annotation_text']
+                } for a in annotations
+            ],
             "reviews": [
                 {
                     "username": r['username'],
@@ -132,22 +150,6 @@ def recipe_page(recipe_id):
         return render_template('recipepage.html', recipe=recipe_data, tags=tags, ingredient_tags=ingredient_tags, is_favourited=is_favourited)
     else:
         return "Page not found", 404
-
-@app.route('/annotate', methods=['POST'])
-def annotate():
-    recipe_id = request.form['recipe_id']
-    highlighted_text = request.form['highlighted_text']
-    annotation_text = request.form['annotation_text']
-
-    connection = get_db_connection()
-    connection.execute(
-        'INSERT INTO annotations (recipe_id, highlighted_text, annotation_text) VALUES (?, ?, ?)',
-        (recipe_id, highlighted_text, annotation_text)
-    )
-    connection.commit()
-    connection.close()
-
-    return redirect(url_for('recipe_page', recipe_id=recipe_id))
 
 @app.route('/')
 def homepage():
