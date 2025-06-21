@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Culinary Compass{% endblock %}
+
+{% block content %}
+    <!-- Search Filter-->
+    <div class="dropdown-wrapper">
+    <h3 onclick="toggleDropdown()" class="dropdown-heading">Filter by Tags <span id="dropdown-icon">⮟</span></h3>
+    <div class="search-bar dropdown-content" id="tagDropdown" style="max-height: 0; overflow: hidden; transition: max-height 0.4s ease;">
+        <form id="search-bar" method="POST" action="/search">
+            <div class="tags-filter">
+                {% for category, tags in tag_categories.items() %}
+                    <div class="category-block">
+                        <h3>{{ category }}</h3>
+                        <div class="tags-row">
+                            {% for tag in tags %}
+                                <div class="tag-container">
+                                    <input type="checkbox" name="tags" value="{{ tag }}" id="{{ category }}-{{ tag }}"
+                                        {% if tag in selected_tags %} checked {% endif %}>
+                                    <label for="{{ category }}-{{ tag }}">{{ tag }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <br>
+            <button type="submit" class="dark-button">Search</button>                      
+        </form>
+    </div>
+    </div>
+
+    <!-- Display list of recipes -->
+    <div class="search-recipe-grid">
+        <h3 class="all-recipes-heading">{{ message }}</h3>
+        <div class="recipe-cards-container">
+            {% for recipe in recipes %}
+                <div class="search-recipe-card">
+                    <a href="/recipe/{{ recipe['id'] }}" class="search-recipe-link">
+                        <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="search-recipe-image">
+                        <div class="search-recipe-info">
+                            <p class="search-recipe-title">{{ recipe['title'] }}</p>
+                            <p class="search-recipe-rating">Rating: {{ recipe['rating'] or 'N/A' }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

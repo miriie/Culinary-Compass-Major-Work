@@ -1,0 +1,400 @@
+import random
+from flask import Flask, render_template, redirect, url_for, session, request, make_response, send_from_directory, jsonify
+from datetime import datetime
+import pytz
+import sqlite3
+import bcrypt
+import string
+import json
+
+app = Flask(__name__)
+app.secret_key = 'wowowow'
+
+@app.route('/static/serviceWorker.js')
+def sw():
+    response=make_response(
+        send_from_directory('static', 'serviceWorker.js'))
+    response.headers['Content-Type'] = 'application/javascript'
+    return response
+
+def get_db_connection():
+    connection = sqlite3.connect('my-database.db')
+    connection.row_factory = sqlite3.Row
+    return connection
+
+@app.route('/recipe/<int:recipe_id>', methods=['GET', 'POST'])
+def recipe_page(recipe_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    if request.method == 'POST':
+        user_id = session['user_id']
+        action = request.form.get('action')
+
+        if action == 'submit_review':
+            # Handle the form submission for adding a review
+            rating = int(request.form['rating'])
+            review_title = request.form['review_title']
+            review_text = request.form['review']
+            profile_picture = session['profile_picture']
+            
+            # Get the current time in Sydney, Australia
+            sydney_tz = pytz.timezone('Australia/Sydney')
+            current_date = datetime.now(sydney_tz).strftime('%Y-%m-%d')
+
+            # Insert the new review into the database
+            insert_review_query = '''
+            INSERT INTO reviews (recipe_id, rating, review, title, date, profile_picture, user_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            '''
+            connection.execute(insert_review_query, (recipe_id, rating, review_text, review_title, current_date, profile_picture, user_id))
+
+            # recalculate new avg rating
+            cursor.execute("SELECT ROUND(AVG(rating), 1) FROM reviews WHERE recipe_id = ?", (recipe_id,))
+            average_rating = cursor.fetchone()[0]
+            cursor.execute("UPDATE recipes SET rating = ? WHERE id = ?", (average_rating, recipe_id))
+        
+        elif action == 'toggle_favourite':
+            favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone()
+            if favourited:
+                cursor.execute("DELETE FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id))
+            else:
+                cursor.execute("INSERT INTO favourites (recipe_id, user_id) VALUES (?, ?)", (recipe_id, user_id))
+        
+        connection.commit()
+        return redirect(url_for('recipe_page', recipe_id=recipe_id))
+    
+    # Fetch recipe information based on the recipe ID
+    query_recipe = '''
+    SELECT recipes.*, users.username AS writer_username, users.id AS writer_id, users.profile_picture AS writer_pic
+    FROM recipes
+    JOIN users ON recipes.user_id = users.id
+    WHERE recipes.id = ?
+    '''
+    recipe = connection.execute(query_recipe, (recipe_id,)).fetchone()
+
+    # Fetch reviews for the recipe
+    query_reviews = '''
+    SELECT users.username, reviews.profile_picture, reviews.title AS review_title, 
+           reviews.review, reviews.rating, reviews.date
+    FROM reviews
+    JOIN users ON reviews.user_id = users.id
+    WHERE reviews.recipe_id = ?
+    '''
+
+    is_favourited = False
+    if 'user_id' in session:
+        user_id = session['user_id']
+        is_favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone() is not None
+
+    reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
+
+    connection.close()
+
+    if recipe:
+        # sorting tags
+        tags_dict = json.loads(recipe['tags'])
+        tags = []
+        for tag_list in tags_dict.values():
+            tags.extend(tag_list)
+        
+        ingredient_tags_dict = json.loads(recipe['ingredient_tags'])
+        ingredient_tags = []
+        for tag_list in ingredient_tags_dict.values():
+            ingredient_tags.extend(tag_list)
+
+
+        # display recipe data
+        recipe_data = {
+            "writer_username": recipe['writer_username'],
+            "writer_id": recipe['writer_id'],
+            "writer_pic": recipe['writer_pic'],
+            "id": recipe['id'],
+            "title": recipe['title'],
+            "instructions": recipe['instructions'],
+            "intro": recipe['intro'],
+            "ingredient_list": recipe['ingredient_list'],
+            "ingredient_tags": ingredient_tags,
+            "tags": tags,
+            "rating": recipe['rating'] if reviews else "N/A",
+            "image": recipe['image'],  
+            "reviews": [
+                {
+                    "username": r['username'],
+                    "profile_picture": r['profile_picture'],
+                    "review_title": r['review_title'],
+                    "review": r['review'],
+                    "rating": r['rating'],
+                    "date": r['date']
+                } for r in reviews
+            ]
+        }
+        return render_template('recipepage.html', recipe=recipe_data, tags=tags, ingredient_tags=ingredient_tags, is_favourited=is_favourited)
+    else:
+        return "Page not found", 404
+
+@app.route('/annotate', methods=['POST'])
+def annotate():
+    recipe_id = request.form['recipe_id']
+    highlighted_text = request.form['highlighted_text']
+    annotation_text = request.form['annotation_text']
+
+    connection = get_db_connection()
+    connection.execute(
+        'INSERT INTO annotations (recipe_id, highlighted_text, annotation_text) VALUES (?, ?, ?)',
+        (recipe_id, highlighted_text, annotation_text)
+    )
+    connection.commit()
+    connection.close()
+
+    return redirect(url_for('recipe_page', recipe_id=recipe_id))
+
+@app.route('/')
+def homepage():
+    connection = get_db_connection()
+
+    popular_recipes_query = '''
+    SELECT recipes.*, COUNT(reviews.id) AS review_count
+    FROM recipes
+    LEFT JOIN reviews ON reviews.recipe_id = recipes.id  -- Correct the join condition here
+    GROUP BY recipes.id
+    ORDER BY review_count DESC
+    LIMIT 3;
+    '''
+    popular_recipes = connection.execute(popular_recipes_query).fetchall()
+
+    # Fetch random recipes for Explore section
+    all_recipes = connection.execute("SELECT * FROM recipes").fetchall()
+    explore_recipes = random.sample(all_recipes, min(len(all_recipes), 3))  # Pick 3 random recipes
+
+    connection.close()
+
+    sw()
+
+    return render_template("homepage.html", popular_recipes=popular_recipes, explore_recipes=explore_recipes)
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    connection = get_db_connection()
+    cursor = connection.cursor()
+
+    # Fetch recipes ordered alphabetically by title
+    cursor.execute("SELECT * FROM recipes ORDER BY title ASC")
+    recipes = cursor.fetchall()
+    tag_categories = {
+        "Type of Meal": ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"],
+        "Cuisine": ["Japanese", "Italian", "American", "Mexican", "Chinese", "Indian", "French", "Korean"],
+        "Taste": ["Sweet", "Salty", "Spicy", "Savory", "Bitter", "Sour", "Umami"],
+        "Diet": ["Vegan", "Vegetarian", "Pescatarian", "No Beef or Pork", "Gluten-free", "Keto", "Halal", "Kosher"],
+        "Style": ["Stir-fried", "Deep-fried", "Grilled", "Baked", "Roasted", "Steamed", "Boiled", "Raw"]
+    }
+
+    selected_tags = [tag.strip() for tag in request.args.getlist('tags') or request.form.getlist('tags')] # get selected tags from recipe page buttons or from search filter
+    searched_name = request.form.get('search-bar', '') if request.method == 'POST' else '' 
+    
+    if searched_name:
+        banned_punctuation = string.punctuation + ":'" # get rid of inconsistencies when user searches up a term
+        searched_name = searched_name.replace(" ", "").translate(str.maketrans("", "", banned_punctuation)).lower()
+        searched_name = f"%{searched_name}%" # if the searched name is partially typed up, and is in one of the databases' recipe titles, the search works
+    
+        # haha what a hot mess (again homogenising recipe titles and getting rid of grammar so it's easier to match)
+        cursor.execute("""
+            SELECT * FROM recipes WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+                title, ' ', ''),
+                ',', ''),
+                '.', ''),
+                ':', ''),
+                "'", ''),
+                '"', '')) 
+            LIKE ?""", (searched_name,))
+
+
+
+        existing_recipe = cursor.fetchall()
+        
+        # check if recipe name searched exists in the database
+        if existing_recipe:
+            recipes = existing_recipe
+            searched_name = request.form["search-bar"]
+            return render_template("search.html", recipes=recipes, tag_categories=tag_categories, message= f'Showing results for "{searched_name}":')
+        else:
+            searched_name = request.form["search-bar"]
+            return render_template("search.html", recipes="", tag_categories=tag_categories, message= f'No recipes found for "{searched_name}":')
+
+    # filter recipes that fit selected tags
+    elif selected_tags:
+        tags_conditions = " AND ".join([f"tags LIKE '%{tag}%'" for tag in selected_tags])
+        cursor.execute(f"""SELECT * FROM recipes WHERE {tags_conditions}""")
+        existing_recipe = cursor.fetchall()
+        if existing_recipe:
+            recipes = existing_recipe
+            return render_template("search.html", recipes=recipes, tag_categories=tag_categories, message= f'Showing results for tags: "{", ".join(selected_tags)}":')
+        else:
+            return render_template("search.html", recipes="", tag_categories=tag_categories, message= f'No recipes found for tags: "{", ".join(selected_tags)}":')
+    
+    connection.close()
+    return render_template('search.html', recipes=recipes, tag_categories=tag_categories, message= f'All Recipes:')
+
+@app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
+def profile(user_id):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    user = cursor.execute('SELECT id, username, profile_picture FROM users WHERE id = ?', (user_id,)).fetchone()
+    query_reviews = '''SELECT reviews.*, reviews.title AS review_title, recipes.title AS recipe_title, reviews.id AS review_id
+    FROM reviews JOIN recipes ON reviews.recipe_id = recipes.id WHERE reviews.user_id = ?'''
+    query_favourites = '''SELECT recipes.*, recipes.title AS recipe_title, favourites.recipe_id
+        FROM recipes 
+        INNER JOIN favourites ON recipes.id = favourites.recipe_id
+        INNER JOIN users ON users.id = favourites.user_id
+        WHERE users.id = ?'''
+    query_created = '''SELECT recipes.*, recipes.title AS recipe_title, recipes.id AS recipe_id
+    FROM recipes JOIN users ON recipes.user_id = users.id WHERE users.id = ?'''
+
+    user_reviews = cursor.execute(query_reviews, (user_id,)).fetchall()
+    user_favourites = cursor.execute(query_favourites, (user_id,)).fetchall()
+    user_created = cursor.execute(query_created, (user_id,)).fetchall()
+    connection.close()
+    return render_template('profile.html', reviews=user_reviews, favourites = user_favourites, created=user_created, user=user)
+
+@app.route('/post', methods=['GET', 'POST'])
+def post():
+    connection = get_db_connection()
+    tag_categories = {
+        "Type of Meal": ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"],
+        "Cuisine": ["Japanese", "Italian", "American", "Mexican", "Chinese", "Indian", "French", "Korean"],
+        "Taste": ["Sweet", "Salty", "Spicy", "Savory", "Bitter", "Sour", "Umami"],
+        "Diet": ["Vegan", "Vegetarian", "Pescatarian", "No Beef or Pork", "Gluten-free", "Keto", "Halal", "Kosher"],
+        "Style": ["Stir-fried", "Deep-fried", "Grilled", "Baked", "Roasted", "Steamed", "Boiled", "Raw"]
+    }
+    ingredient_tags = {
+        "Carbs": ["Flour", "Bread", "Pasta", "Oats", "Tortilla", "Barley", "Wheat"],
+        "Dairy": ["Milk", "Butter", "Cheese", "Yoghurt", "Cream", "Condensed Milk", "Ice Cream"],
+        "Meat": ["Beef", "Pork", "Chicken", "Duck", "Turkey", "Goat", "Lamb", "Rabbit"],
+        "Seafood": ["Fish", "Salmon", "Tuna", "Shrimp", "Prawns", "Crab", "Lobster", "Squid", "Octopus", "Mussels", "Scallops", "Clams"],
+        "Non-Vegan": ["Eggs", "Lard", "Gelatin"],
+        "Vegetables": ["Onion", "Garlic", "Tomato", "Carrot", "Bell Pepper", "Chilli", "Broccoli", "Spinach", "Mushroom", "Cabbage", "Zucchini", "Chickpeas", "Lentils", "Black Beans", "Kidney Beans", "Green Peas"],
+        "Fruits": ["Lemon", "Avocado", "Apple", "Banana", "Strawberry", "Mango", "Grapes", "Pineapple", "Orange"],
+        "Nuts": ["Nuts", "Peanuts", "Walnuts", "Hazelnuts", "Pistachios", "Almonds", "Cashews"],
+        "Condiments": ["Soy Sauce", "Vinegar", "Tomato Sauce", "Mayonnaise", "Ketchup", "Mustard", "Hot Sauce"],
+        "Seasonings": ["Sugar", "Salt", "Pepper", "Paprika", "Cumin", "Cinnamon", "Chilli Flakes", "Garlic Powder", "Ginger", "Oregano", "Turmeric"],
+        "Oils": ["Olive Oil", "Vegetable Oil", "Canola Oil", "Sesame Oil", "Coconut Oil", "Ghee"],
+        "Miscellaneous": []
+    }
+
+    selected_tags = {}
+    for category, tags in tag_categories.items():
+        key = category.lower().replace(" ", "_") 
+        selected_tags[key] = request.form.getlist(key)
+    selected_ingredients = {}
+    for category, tags in ingredient_tags.items():
+        key = category.lower().replace(" ", "_") 
+        selected_ingredients[key] = request.form.getlist(key)  
+    
+    if request.method == 'POST':
+        recipe_writer = session['user_id']
+        recipe_title = request.form['recipe_title']
+        recipe_intro = request.form['recipe_intro']
+        recipe_ingredient_list = request.form['recipe_ingredient_list']
+        recipe_ingredient_tags = json.dumps(selected_ingredients)
+        recipe_instructions = request.form['recipe_instructions']
+        recipe_tags = json.dumps(selected_tags)
+        insert_recipe_query = '''
+        INSERT INTO recipes (user_id, title, intro, ingredient_list, ingredient_tags, instructions, tags, image)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        '''
+        cursor = connection.execute(insert_recipe_query, (recipe_writer, recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, "images/splatoon3.jpg"))
+        connection.commit()
+        recipe_id = cursor.lastrowid
+        connection.close()
+        return redirect(url_for('recipe_page', recipe_id=recipe_id))
+    return render_template('post.html', tag_categories=tag_categories, selected_tags=selected_tags, ingredient_tags=ingredient_tags, selected_ingredients=selected_ingredients)
+
+@app.route("/login", methods= ["GET", "POST"])
+def login():
+    connection = get_db_connection()
+    
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        existing_user = cursor.fetchone()
+    
+
+        if existing_user:
+            user_id = existing_user[0]
+            db_password = existing_user[2]
+            if bcrypt.checkpw(password.encode('utf-8'), db_password):
+                session["user_id"] = user_id
+                session["username"] = existing_user[1]
+                session["profile_picture"] = existing_user[3]
+                session["logged_in"] = True
+                return redirect(url_for('homepage'))
+            else:
+                return render_template("login.html", message="Error: Wrong username or password")
+        else:
+            return render_template("login.html", message= "Error: User does not exist")
+    return render_template("login.html")
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('homepage'))
+
+@app.route("/register", methods= ["GET", "POST"])
+def register():
+    connection = get_db_connection()
+    
+    images = [
+        "clover.png", 
+        "redpik.png", 
+        "bluepik.png", 
+        "yellowpik.png",
+        "purplepik.png",
+        "whitepik.png",
+        "rockpik.png",
+        "icepik.png",
+        "wingpik.png",
+        "glowpik.png"
+    ]
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        re_password = request.form["re-password"]
+        profile_picture = "images/" + request.form["pikpic"]
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
+        existing_user = cursor.fetchone()
+        
+        # user taken
+        if existing_user:
+            return render_template("register.html", message= "Error: Username already taken", images=images)
+
+        # password min length
+        if len(password) < 8:
+            return render_template("register.html", message= "Error: Password must be at least 8 characters long", images=images)
+
+        # passwords match
+        if password != re_password:
+            return render_template("register.html", message= "Error: Passwords do not match", images=images)
+        
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        # successful registration 
+        cursor.execute("INSERT INTO users(username, password, profile_picture) VALUES (?, ?, ?)", (username, hashed_password, profile_picture))
+        connection.commit()
+        cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+        user_id  = cursor.fetchone()[0]
+        session["user_id"] = user_id
+        session["username"] = username
+        session["profile_picture"] = profile_picture
+        session["logged_in"] = True
+        return redirect(url_for('homepage'))
+    return render_template("register.html", images=images)
+
+if __name__ == "__main__":
+    app.run(debug=True)

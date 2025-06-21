@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %} Recipes: {{ recipe['title'] }} - Culinary Compass{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <div class="recipe-info">
+            {% if session.get('logged_in') %}
+            <form method="POST" style="display:inline;">
+                <input type="hidden" name="action" value="toggle_favourite">
+                <button type="submit" class="favourite-button">
+                        {% if is_favourited %}
+                            ❤️ Favourited
+                        {% else %}
+                            🖤 Favourite
+                        {% endif %}
+                </button>
+            </form>
+            {% endif %}
+            <h1>{{ recipe['title'] }}</h1>
+            <a href="{{ url_for('profile', user_id=recipe['writer_id']) }}">
+                <img src="{{ url_for('static', filename=recipe['writer_pic'] if recipe['writer_pic'] else 'images/default_profile.png') }}" alt="Profile Picture" class="profile-pic">
+                <p>By {{ recipe['writer_username'] }} </p>
+            </a>
+            <p><strong>Rating:</strong> <span class="rating">{{ recipe['rating'] }}</span></p>
+            <p> {{ recipe['intro']}}</p>
+            <p><strong>Ingredients:</strong></p>
+            <p> {{ recipe['ingredient_list']}}</p>
+            <p><strong>Ingredient Tags:</strong></p>
+                <div class="recipe-tags">
+                    {% for tag in ingredient_tags %}
+                        <a href="{{ url_for('search') }}?tags={{ tag }}" class="dark-button">{{ tag }}</a>
+                    {% endfor %}
+                </div>
+            
+            <p><strong>Instructions:</strong></p>
+            <div id="recipe-instructions">
+            <p id="instructions-text">{{ recipe['instructions'] }}</p>
+            </div>
+
+            <p><strong>Tags:</strong>
+                <form method="POST">
+                    <div class="recipe-tags">
+                        {% for tag in recipe['tags'] %}
+                            <a href="{{ url_for('search') }}?tags={{ tag }}" class="dark-button">{{ tag }}</a>
+                        {% endfor %}
+                    </div>
+                </form>
+            </p>
+        </div>
+    </div>
+
+    <!-- Annotations -->
+    <button id="show-annotation-btn" style="display: none; position: absolute;">＋</button>
+    <form id="annotation-form" method="POST" action="/annotate" style="display:none; margin-top: 20px;">
+        <input type="hidden" name="recipe_id" value="{{ recipe['id'] }}">
+        <input type="hidden" name="highlighted_text" id="highlighted-text">
+        
+        <label for="annotation">Your Annotation:</label>
+        <textarea name="annotation_text" id="annotation" rows="3" required></textarea>
+        
+        <br>
+        <button type="submit">Save Annotation</button>
+    </form>
+    
+    <div id="annotation-sidebar">
+        <h3>Annotations</h3>
+        <ul id="annotations-list"></ul>
+    </div>
+
+    <div class="review-form">
+        {% if session.get('logged_in') %}
+            <h2>Submit Your Review</h2>
+            <form method="POST">
+                <input type="hidden" name="action" value="submit_review">
+                <div class="form-group">
+                    <label for="review_title">Review Title:</label>
+                    <input type="text" id="review_title" name="review_title" required>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="rating">Rating (1-5):</label>
+                    <input type="number" id="rating" name="rating" min="1" max="5" required>
+                </div>
+                <br>
+                <div class="form-group">
+                    <label for="review">Your Review:</label>
+                    <textarea id="review" name="review" required></textarea>
+                </div>
+                <br>
+                <button type="submit" class="submit-button">Submit Review</button>
+            </form>
+        {% else %}
+            <p>You need to be logged in to post a review.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h2>Reviews:</h2>
+        {% for review in recipe['reviews'] %}
+            <div class="review">
+                <div class="profile">
+                    <img src="{{ url_for('static', filename=review['profile_picture'] if review['profile_picture'] else 'images/default_profile.png') }}" alt="Profile Picture" class="profile-pic">
+                    <div class="review-header">
+                        <p><strong>{{ review['username'] }}</strong></p>
+                        <p><strong>Rating:</strong> {{ review['rating'] }}</p>
+                        <p><strong>Date:</strong> {{ review['date'] }}</p>
+                    </div>
+                </div>
+                <h3 class="review-title">{{ review['review_title'] }}</h3>
+                <p class="review-text">{{ review['review'] }}</p>
+            </div>
+        {% else %}
+            <p>No reviews available.</p>
+        {% endfor %}
+    </div>
+
+{% endblock %}

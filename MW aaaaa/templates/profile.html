@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ user['username'] }}'s Profile - Culinary Compass{% endblock %}
+
+{% block content %}
+        
+        <div class="profile-header">
+            <img src="{{ url_for('static', filename=user['profile_picture']) }}" alt="Profile Picture" class="profile-page-pic">
+            <h1> {{ user['username'] }}'s Profile </h1>        
+        </div>
+
+        <div>
+            {% if session.get('user_id') == user['id'] %}
+                <a href="{{ url_for('post') }}" class="submit-button">Post a Recipe</a>
+                <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+            {% endif %}
+        </div>
+
+        <div class="user-posts">
+            <h1> Posted Recipes </h1>
+            {% for created in created %}
+                <a href="{{ url_for('recipe_page', recipe_id=created['recipe_id']) }}">
+                <div class="review-card">
+                    <p class="profile-rev-title">
+                        Recipe: {{ created['recipe_title'] }} <br>
+                    <p class="profile-rev-text">
+                        Rating: {{ created['rating'] }}
+                    </p>
+                </div>
+                </a>
+            {% endfor %}
+            
+            <h1> Favourited Recipes </h1>
+            {% for favourited in favourites %}
+                <a href="{{ url_for('recipe_page', recipe_id=favourited['recipe_id']) }}">
+                <div class="review-card">
+                    <p class="profile-rev-title">
+                        Recipe: {{ favourited['recipe_title'] }} <br>
+                    <p class="profile-rev-text">
+                        Rating: {{ favourited['rating'] }}
+                    </p>
+                </div>
+                </a>
+            {% endfor %}
+
+            <h1> Posted Reviews </h1>
+            {% for review in reviews %}
+                <a href="{{ url_for('recipe_page', recipe_id=review['recipe_id']) }}">
+                <div class="review-card">
+                    <p class="profile-rev-title">
+                        Recipe: {{ review['recipe_title'] }} <br>
+                        {{ review['review_title'] }}</p>
+                    <p class="profile-rev-text">
+                        {{ review['review'] }} <br>
+                        Rating: {{ review['rating'] }}
+                    </p>
+                </div>
+                </a>
+            {% endfor %}
+        </div>
+{% endblock %}

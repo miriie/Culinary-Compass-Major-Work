@@ -1,0 +1,45 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}">
+    <script src="{{ url_for('static', filename='global.js') }}" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Culinary Compass{% endblock %}</title>
+    <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+    <!-- Header -->
+    <div id="top-division">
+        <a href="{{ url_for('homepage') }}" class="logo-link">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="corner-image" />
+            <span class="site-name">Culinary Compass</span>
+        </a>
+
+        <form id="search-bar" method="POST" action="/search">
+            <input type="text" name="search-bar" placeholder="Search..." />
+        </form>
+        
+        <div class="auth-button">
+            <a href="{{ url_for('search') }}" class="search-button">Refine Search</a>
+            
+            <a class="timer-button">Timer</a>        
+            
+            {% if not session.get('logged_in') %}
+            <a href="{{ url_for('login') }}" class="login-button">Login</a>
+            {% else %}
+            <a href="{{ url_for('profile', user_id=session.get('user_id')) }}" class="profile-button">Profile</a>  
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Timer Popup -->
+    {% include 'timer.html' %}
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

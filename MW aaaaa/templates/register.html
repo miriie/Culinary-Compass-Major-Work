@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %} Register - Culinary Compass{% endblock %}
+
+{% block content %}
+        <h1> Register </h1>
+        <form id="register" method="POST" action="/register">
+            <div class= "wrapper">
+                <div class= "input-box">
+                    <h3> Username </h3>
+                    <input type="text" id="username" name="username" required>
+                    <h3> Password </h3>
+                    <input type="password" id="password" name="password" required>
+                    <h3> Reconfirm Password </h3>
+                    <input type="password" id="re-password" name="re-password" required>
+                </div>
+                
+                <div class= "pikpic">
+                    <h3>Profile Picture</h3>
+                    {% for image in images %}
+                        <label>
+                            <input type="radio" name="pikpic" value="{{ image }}" required>
+                            <img src="{{ url_for('static', filename='images/' + image) }}" alt="{{ image.split('.')[0] }}" width="50" height="50">
+                        </label>
+                    {% endfor %}
+                </div>
+ 
+                <br>
+                
+                <button type="submit" id="register-button" class="dark-button">Register</button>
+                <h3>
+                    Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+                </h3>
+                {% if message %}
+                <p>{{ message }}</p>
+                {% endif %}            
+            </div>
+        </form>
+{% endblock %}

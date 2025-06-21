@@ -1,0 +1,17 @@
+{
+    "name" : "Minpik Game Reviews",
+    "short_name" : "Minpik",
+    "description" : "Game reviews for nintendo games", 
+    "background_color" : "#ffff00",
+    "display" : "standalone",
+    "orientation" : "any",
+    "scope" : "/",
+    "start_url" : "/",
+    "icons" : [
+        {
+            "src" : "images/browserIcon.png",
+            "size" : "200x200",
+            "purpose" : "maskable"
+        }
+    ]
+}

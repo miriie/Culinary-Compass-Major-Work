@@ -1,0 +1,581 @@
+/* ====== General Styles ====== */
+* {
+  font-family: 'Cascadia Code', monospace;
+  box-sizing: border-box;
+}
+body {
+  margin: 10px;
+  padding-top: 100px;
+  text-align: center;
+  background-color: #e6f0fa;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+a {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ====== Top Navigation Bar ====== */
+#top-division {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 80px;
+  width: 100%;
+  background-color: #2A6F97;
+  color: #144552;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  gap: 10px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.corner-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin: 0; /* remove margin-right since gap used */
+}
+
+/* Remove the span flex-grow from inside the link */
+.site-name {
+  font-weight: bold;
+  font-size: 1.5em;
+  user-select: none;
+}
+
+/* Let search form take up available space */
+#search-bar {
+  flex-grow: 1;
+  margin: 0 20px; /* add some horizontal spacing */
+}
+
+/* Keep auth-buttons grouped on the right */
+.auth-button {
+  display: flex;
+  gap: 15px;
+  margin-left: auto;
+  margin-right: 15px;
+}
+
+.auth-button a {
+  background-color: white;
+  color: #144552;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.auth-button a:hover {
+  background-color: #144552;
+  color: white;
+}
+
+/* ====== Content Layout ====== */
+.content-wrapper {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Left Section: Recipe Info */
+.recipe-info {
+  width: 70%;
+  background-color: #2A6F97;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: left;
+}
+.recipe-info h1,
+.recipe-info p {
+  margin-bottom: 10px;
+}
+
+/* Recipe Tags */
+.recipe-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
+.dark-button {
+  background-color: #144552;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.dark-button:hover {
+  background-color: white;
+  color: #144552;
+}
+
+.auth-button {
+  display: flex;
+  gap: 15px;
+  margin-left: auto;
+  margin-right: 15px;
+}
+
+.auth-button a {
+  background-color: #144552;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.auth-button a:hover {
+  background-color: white;
+  color: #144552;
+}
+
+/* Recipe Image */
+.recipe-image {
+  width: 60%;
+}
+.recipe-image img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Reviews Section */
+.reviews-section {
+  margin: 20px 0;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.review {
+  background-color: #e6f0fa;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.profile-pic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+.review-header {
+  display: flex;
+  flex-direction: column;
+}
+.review-header p {
+  margin: 0;
+}
+.review-title {
+  margin-left: 10px;
+}
+.review-text {
+  margin: 10px 0 0 10px;
+  font-size: 1em;
+  color: #333;
+}
+
+/* Homepage Recipe Grid */
+.recipe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
+}
+.recipe-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+.recipe-card:hover {
+  transform: scale(1.05);
+}
+.recipe-card a:hover {
+  text-decoration: none;
+}
+.recipe-image-homepage {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.recipe-title {
+  padding: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: black;
+}
+
+/* Review Form */
+.review-form {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+.review-form h2 {
+  font-size: 1.5em;
+  color: #144552;
+  margin-bottom: 15px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+label {
+  font-weight: bold;
+  color: #333;
+}
+input, textarea {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 100%;
+}
+textarea {
+  resize: vertical;
+  height: 100px;
+}
+.submit-button {
+  align-self: flex-start;
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: bold;
+  color: white;
+  background-color: #144552;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.submit-button:hover {
+  background-color: #0b3b4c;
+}
+
+/* Tags Filter */
+.tags-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
+.tags-filter label {
+  display: inline-block;
+  background-color: white;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  white-space: nowrap;
+  text-align: center;
+  border: 3px solid transparent;
+  transition: background-color 0.3s, color 0.3s;
+}
+.tags-filter input[type="checkbox"] {
+  display: none;
+}
+.tags-filter input[type="checkbox"]:checked + label {
+  background-color: #0b3b4c;
+  color: white;
+}
+
+.tags-filter input[type="checkbox"]:disabled + label {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Search Results */
+.search-recipe-grid {
+  display: block;
+  padding: 20px;
+}
+.all-recipes-heading {
+  text-align: left;
+  margin: 0 0 10px 0;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+.search-recipe-card {
+  margin-bottom: 15px;
+}
+.search-recipe-link {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  gap: 15px;
+  color: inherit;
+}
+.search-recipe-image {
+  width: 150px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.search-recipe-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+}
+.search-recipe-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: left;
+  margin: 0;
+}
+.search-recipe-rating {
+  font-size: 1.1em;
+  color: #ffcc00;
+  font-weight: bold;
+  margin: 0;
+  align-self: flex-start;
+}
+
+/* Buttons */
+.search-search-button {
+  background-color: #144552;
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 1.3em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Utility and Misc */
+h1 {
+  text-align: center;
+}
+.wrapper {
+  width: 100%;
+  height: 100%;
+  border-radius: 40px;
+}
+.input-box input {
+  padding: 10px 20px;
+  width: 35%;
+  height: 6%;
+  border-radius: 5px;
+}
+
+.pikpic {
+  display: inline-block;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+}
+.pikpic input[type="radio"] {
+  display: none;
+}
+.pikpic img {
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border: 4px solid transparent;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: border-color 0.3s;
+}
+.pikpic input[type="radio"]:checked + img {
+  border-color: #0b3b4c;
+}
+
+/* Profile Section */
+.profile-header {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.profile-page-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid white;
+  margin-right: 20px;
+}
+.review-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  display: block;
+}
+.profile-rev-title {
+  text-align: left;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.profile-rev-text {
+  text-align: left;
+}
+
+/* Popup Styles */
+.popup {
+  background-color: #2A6F97;
+  color: white;
+  box-shadow: 0 0 12px rgba(0,0,0,0.2);
+  width: 300px;
+  padding-bottom: 20px;
+  border-radius: 12px;  
+  z-index: 999;
+}
+.popup-header {
+  background-color: #144552;
+  color: white;
+  padding: 10px;
+  border-radius: 12px 12px 0 0;  
+  cursor: move;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #144552	;
+}
+.time-inputs {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 10px 0;
+}
+.time-inputs input {
+  width: 50px;
+  text-align: center;
+  padding: 5px;
+  font-size: 1.1em;
+  border: 1px solid;
+  border-radius: 5px;
+}
+.popup-body button {
+  margin: 5px;
+  padding: 8px 12px;
+  border: none;
+  background-color: #144552;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.popup-body button:hover {
+  background-color: white;
+  color: #144552;
+}
+.close-btn {
+  color: white;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Tags filter inside posting recipes */
+.category-block {
+  margin-bottom: 24px;
+}
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.tag-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dropdown */
+.dropdown-heading {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 8px 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dropdown-heading span {
+  transition: transform 0.2s ease;
+}
+
+/* Annotation */
+#annotation-sidebar {
+  width: 35%;
+  float: right;
+  padding: 20px;
+  background: #f1f1f1;
+  border-radius: 10px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.highlight {
+  background-color: yellow;
+}
+
+#show-annotation-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 1000;
+}
+

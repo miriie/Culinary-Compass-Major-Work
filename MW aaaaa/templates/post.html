@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Post a Recipe - Culinary Compass{% endblock %}
+
+{% block content %}
+    <h1> Post a Recipe </h1>
+    <form id="post" method="POST" action="/post">
+        <div class="wrapper">
+            <div class="input-box">
+                <h3> Title: </h3>
+                    <input type="text" id="recipe_title" name="recipe_title" required>
+                <h3> Introduction: </h3>
+                    <input type="text" id="recipe_intro" name="recipe_intro">
+                <h3> Ingredients: </h3>
+                    <textarea id="recipe_ingredient_list" name="recipe_ingredient_list" rows="6" placeholder="Enter one ingredient per line" required></textarea>
+                    <div class="tags-filter">
+                    {% for category, tags in ingredient_tags.items() %}
+                        <div class="category-block">
+                        <h3>{{ category }}</h3>
+                        <div class="tags-row">
+                            {% set key = category.lower().replace(" ", "_") %}
+                                {% for tag in tags %}
+                                    <div class="tag-container">
+                                        <input type="checkbox" name="{{ key }}" value="{{ tag }}" id="{{ key }}-{{ tag }}"
+                                        {% if tag in selected_ingredients.get(key, []) %} checked {% endif %}>
+                                        <label for="{{ key }}-{{ tag }}">{{ tag }}</label>
+                                    </div>
+                                {% endfor %}
+                        </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                <h3> Instructions: </h3>
+                    <input type="text" id="recipe_instructions" name="recipe_instructions" required>
+                <h3> Tags: </h3>
+                    <div class="tags-filter">
+                        {% for category, tags in tag_categories.items() %}
+                            <div class="category-block">
+                                <h3>{{ category }}</h3>
+                                <div class="tags-row">
+                                    {% set key = category.lower().replace(" ", "_") %}
+                                    {% for tag in tags %}
+                                        <div class="tag-container">
+                                            <input type="checkbox" name="{{ key }}" value="{{ tag }}" id="{{ key }}-{{ tag }}"
+                                                {% if tag in selected_tags[key] %} checked {% endif %}>
+                                            <label for="{{ key }}-{{ tag }}">{{ tag }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+            </div>
+        </div>
+        <button type="submit" id="register-button" class="dark-button">Submit</button>
+    </form>
+    
+    <script>
+        // Dot-point input
+        const ingredientsTextarea = document.getElementById('recipe_ingredient_list');
+
+        ingredientsTextarea.addEventListener('focus', () => {
+            if (!ingredientsTextarea.value.startsWith("• ")) {
+                ingredientsTextarea.value = "• ";
+                ingredientsTextarea.selectionStart = ingredientsTextarea.selectionEnd = ingredientsTextarea.value.length;
+            }
+        });
+
+        ingredientsTextarea.addEventListener('keydown', function (event) {
+            const cursorPos = ingredientsTextarea.selectionStart;
+            if ((event.key === 'Backspace' || event.key === 'Delete') && cursorPos <= 2 && ingredientsTextarea.value.startsWith("• ")) {
+                event.preventDefault();
+                return;
+            }
+
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const textBefore = ingredientsTextarea.value.substring(0, cursorPos);
+                const textAfter = ingredientsTextarea.value.substring(cursorPos);
+                ingredientsTextarea.value = textBefore + "\n• " + textAfter;
+                const newCursorPos = cursorPos + 3;
+                ingredientsTextarea.selectionStart = ingredientsTextarea.selectionEnd = newCursorPos;
+            }
+        });
+
+        ingredientsTextarea.addEventListener('input', () => {
+            if (!ingredientsTextarea.value.startsWith("• ")) {
+                ingredientsTextarea.value = "• " + ingredientsTextarea.value;
+            }
+        });
+
+        // Warnings and diet conflicts
+        const warningRules = {
+            gluten: new Set(["Flour", "Bread", "Pasta", "Tortilla", "Barley", "Wheat", "Oats"]),
+            meat: new Set(["Beef", "Pork", "Chicken", "Duck", "Turkey", "Goat", "Lamb", "Rabbit"]),
+            nonVegan: new Set(["Eggs", "Lard", "Gelatin", "Milk", "Butter", "Cheese", "Yoghurt", "Cream", "Condensed Milk", "Ice Cream", "Beef", "Pork", "Chicken", "Duck", "Turkey", "Goat", "Lamb", "Rabbit", "Fish", "Salmon", "Tuna", "Shrimp", "Prawns", "Crab", "Lobster", "Squid", "Octopus", "Mussels", "Scallops", "Clams"]),
+            seafood: new Set(["Fish", "Salmon", "Tuna", "Shrimp", "Prawns", "Crab", "Lobster", "Squid", "Octopus", "Mussels", "Scallops", "Clams"]),
+            nuts: new Set(["Nuts", "Peanuts", "Walnuts", "Hazelnuts", "Pistachios", "Almonds", "Cashews"])
+        };
+
+        const dietConflicts = {
+            "Vegan": warningRules.nonVegan,
+            "Vegetarian": new Set([...warningRules.meat, ...warningRules.seafood]),
+            "Pescatarian": warningRules.meat,
+            "No Beef or Pork": new Set(["Beef", "Pork"]),
+            "Gluten-free": warningRules.gluten
+        };
+
+        function getSelectedIngredients() {
+            const checked = document.querySelectorAll('.tags-filter input[type="checkbox"]:checked');
+            return Array.from(checked).map(input => input.value);
+        }
+
+        function getSelectedDietTags() {
+            const checked = document.querySelectorAll('input[name="diet"]:checked');
+            return Array.from(checked).map(input => input.value);
+        }
+
+        function disableConflictingIngredients(selectedDietTags) {
+            const ingredientCheckboxes = document.querySelectorAll('.tags-filter input[type="checkbox"]');
+
+            const allConflicts = new Set();
+            selectedDietTags.forEach(tag => {
+                const ruleSet = dietConflicts[tag];
+                if (ruleSet) ruleSet.forEach(item => allConflicts.add(item));
+            });
+
+            ingredientCheckboxes.forEach(checkbox => {
+                if (allConflicts.has(checkbox.value)) {
+                    checkbox.disabled = true;
+                    checkbox.checked = false;
+                } else {
+                    checkbox.disabled = false;
+                }
+            });
+        }
+
+        function disableConflictingDietTags(selectedIngredients) {
+            Object.entries(dietConflicts).forEach(([tagName, conflictSet]) => {
+                const tagCheckbox = document.querySelector(`input[name="diet"][value="${tagName}"]`);
+                if (!tagCheckbox) return;
+
+                const hasConflict = selectedIngredients.some(ing => conflictSet.has(ing));
+                if (hasConflict) {
+                    tagCheckbox.disabled = true;
+                    tagCheckbox.checked = false;
+                } else {
+                    tagCheckbox.disabled = false;
+                }
+            });
+        }
+
+        function updateConflicts() {
+            const selectedIngredients = getSelectedIngredients();
+            const selectedDietTags = getSelectedDietTags();
+
+            disableConflictingIngredients(selectedDietTags);
+            disableConflictingDietTags(selectedIngredients);
+        }
+
+        // Attach listeners
+        document.querySelectorAll('.tags-filter input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', updateConflicts);
+        });
+
+        document.querySelectorAll('input[name="diet"]').forEach(cb => {
+            cb.addEventListener('change', updateConflicts);
+        });
+
+        // Initial state
+        updateConflicts();
+    </script>
+{% endblock %}

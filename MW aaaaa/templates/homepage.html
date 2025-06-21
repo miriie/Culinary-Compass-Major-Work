@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Culinary Compass{% endblock %}
+
+{% block content %}
+  <h1 id="popular_recipes_section">Popular Recipes</h1>
+  <div class="recipe-grid">
+    {% for recipe in popular_recipes %}
+      <div class="recipe-card">
+        <a href="/recipe/{{ recipe['id'] }}">
+          <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          <div class="recipe-title">{{ recipe['title'] }}</div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+
+  <h1 id="explore_recipes_section">Explore Recipes</h1>
+  <div class="recipe-grid">
+    {% for recipe in explore_recipes %}
+      <div class="recipe-card">
+        <a href="/recipe/{{ recipe['id'] }}">
+          <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          <div class="recipe-title">{{ recipe['title'] }}</div>
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
