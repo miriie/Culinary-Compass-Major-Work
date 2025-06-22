@@ -36,7 +36,7 @@
             
             <p><strong>Instructions:</strong></p>
             <div id="recipe-instructions">
-            <p id="instructions-text">{{ recipe['instructions'] }}</p>
+                <p id="instructions-text">{{ recipe['instructions']|safe }}</p>
             </div>
 
             <p><strong>Tags:</strong>
@@ -70,7 +70,7 @@
             {% if recipe.annotations %}
                 <div class="annotations-container">
                     {% for annotation in recipe.annotations %}
-                        <div class="annotation-box">
+                        <div class="annotation-box" id="annotation-{{ loop.index0 }}" data-index="{{ loop.index0 }}">
                             <p class="highlight">“{{ annotation.highlighted_text }}”</p>
                             <p class="note">{{ annotation.annotation_text }}</p>
                         </div>

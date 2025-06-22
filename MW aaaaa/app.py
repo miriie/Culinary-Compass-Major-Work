@@ -6,6 +6,8 @@ import sqlite3
 import bcrypt
 import string
 import json
+from markupsafe import Markup
+import re
 
 app = Flask(__name__)
 app.secret_key = 'wowowow'
@@ -21,6 +23,13 @@ def get_db_connection():
     connection = sqlite3.connect('my-database.db')
     connection.row_factory = sqlite3.Row
     return connection
+
+def highlight_text(instructions, annotations):
+    for i, ann in enumerate(annotations):
+        pattern = re.escape(ann['highlighted_text'])
+        replacement = f'<mark class="highlighted-text" id="highlight-{i}" data-index="{i}">{ann["highlighted_text"]}</mark>'
+        instructions = re.sub(pattern, replacement, instructions, count=1)
+    return Markup(instructions)
 
 @app.route('/recipe/<int:recipe_id>', methods=['GET', 'POST'])
 def recipe_page(recipe_id):
@@ -84,7 +93,7 @@ def recipe_page(recipe_id):
 
     # Fetch reviews for the recipe
     query_reviews = '''
-    SELECT users.username, reviews.profile_picture, reviews.title AS review_title, reviews.review, reviews.rating, reviews.date
+    SELECT users.username, reviews.*, reviews.title AS review_title
     FROM reviews
     JOIN users ON reviews.user_id = users.id
     WHERE reviews.recipe_id = ?
@@ -142,6 +151,7 @@ def recipe_page(recipe_id):
             ],
             "reviews": [
                 {
+                    "user_id": r['user_id'],
                     "username": r['username'],
                     "profile_picture": r['profile_picture'],
                     "review_title": r['review_title'],
@@ -151,6 +161,7 @@ def recipe_page(recipe_id):
                 } for r in reviews
             ]
         }
+        recipe_data["instructions"] = highlight_text(recipe_data["instructions"], recipe_data["annotations"])
         return render_template('recipepage.html', recipe=recipe_data, tags=tags, ingredient_tags=ingredient_tags, is_favourited=is_favourited)
     else:
         return "Page not found", 404
@@ -273,7 +284,7 @@ def post():
         "Style": ["Stir-fried", "Deep-fried", "Grilled", "Baked", "Roasted", "Steamed", "Boiled", "Raw"]
     }
     ingredient_tags = {
-        "Carbs": ["Flour", "Bread", "Pasta", "Oats", "Tortilla", "Barley", "Wheat"],
+        "Carbs": ["Flour", "Bread", "Rice", "Pasta", "Oats", "Tortilla", "Barley", "Wheat"],
         "Dairy": ["Milk", "Butter", "Cheese", "Yoghurt", "Cream", "Condensed Milk", "Ice Cream"],
         "Meat": ["Beef", "Pork", "Chicken", "Duck", "Turkey", "Goat", "Lamb", "Rabbit"],
         "Seafood": ["Fish", "Salmon", "Tuna", "Shrimp", "Prawns", "Crab", "Lobster", "Squid", "Octopus", "Mussels", "Scallops", "Clams"],

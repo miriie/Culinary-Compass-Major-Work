@@ -335,4 +335,28 @@ document.addEventListener('DOMContentLoaded', function () {
         annotationForm.style.display = 'block';
         annotationTextarea.focus();
     });
-});
+
+    // Highlights → scroll to annotation
+    document.querySelectorAll('mark.highlighted-text').forEach((mark, i) => {
+      mark.addEventListener('click', () => {
+        const box = document.getElementById('annotation-' + i);
+        if (box) {
+          box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          box.classList.add('flash');
+          setTimeout(() => box.classList.remove('flash'), 500);
+        }
+      });
+    });
+
+    // Comments → scroll to highlight
+    document.querySelectorAll('.annotation-box').forEach((box, i) => {
+      box.addEventListener('click', () => {
+        const mark = document.getElementById('highlight-' + i);
+        if (mark) {
+          mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          mark.classList.add('flash');
+          setTimeout(() => mark.classList.remove('flash'), 500);
+        }
+      });
+    });
+  });
