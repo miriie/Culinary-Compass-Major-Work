@@ -128,7 +128,7 @@ a {
   transition: background-color 0.3s;
 }
 .dark-button:hover {
-  background-color: #2eb0f1;
+  background-color: #1488c8;
 }
 
 .auth-button {
@@ -176,7 +176,7 @@ a {
   gap: 15px;
 }
 .review {
-  background-color: white;
+  background-color: #e6f0fa;
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -247,7 +247,7 @@ a {
 
 /* Review Form */
 .review-form {
-  background-color: white;
+  background-color: #f9f9f9;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -272,7 +272,7 @@ label {
 }
 input, textarea {
   padding: 10px 15px;
-  border: 1px solid white;
+  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1em;
   width: 100%;

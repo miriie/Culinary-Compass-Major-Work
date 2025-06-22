@@ -2,6 +2,7 @@ YOU WILL NEED TO INSTALL THESE PACKAGES IF YOU DO NOT ALREADY HAVE:
  - flask
  - pytz
  - bcrypt
+ - better_profanity
 To install, simply open up your terminal and type 'pip install <INSERT PACKAGE NAME>'
 
 To run the program locally, run the 'app.py' file or alternatively type 'python app.py' in your terminal.

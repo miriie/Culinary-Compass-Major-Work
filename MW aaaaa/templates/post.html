@@ -6,15 +6,21 @@
     <div class="post-container">
     <h1 style="text-align: center;"> Post a Recipe </h1>
     <form id="post" method="POST" action="/post">
+        {% if editing %}
+                <input type="hidden" name="recipe_id" value="{{ recipe_data['id'] }}">
+        {% endif %}
         <div class="wrapper">
             <div class="input-box">
                 <h3> Title: </h3>
-                    <input type="text" id="recipe_title" name="recipe_title" required>
+                    <input type="text" id="recipe_title" name="recipe_title"
+                        value="{{ recipe_data['title'] if recipe_data else '' }}" maxlength="50" required>
                 <h3> Introduction: </h3>
-                    <input type="text" id="recipe_intro" name="recipe_intro">
-                    
+                    <input type="text" id="recipe_intro" name="recipe_intro"
+                        value="{{ recipe_data['intro'] if recipe_data else '' }}" maxlength="15000">
+                                            
                 <h3> Ingredients: </h3>
-                    <textarea id="recipe_ingredient_list" name="recipe_ingredient_list" rows="6" placeholder="Enter one ingredient per line" required></textarea>
+                <textarea id="recipe_ingredient_list" name="recipe_ingredient_list" rows="6" maxlength="5000" required>{%- if recipe_data %}{{ recipe_data['ingredient_list'] }}{%- endif %}</textarea>
+
 
                 <h3 onclick="toggleDropdown('ingredientDropdown', this.querySelector('.dropdown-icon'))" class="dropdown-heading">
                     Ingredient Tags: <span class="dropdown-icon">⮟</span>
@@ -41,7 +47,7 @@
                 </div>
                 
                 <h3> Instructions: </h3>
-                <textarea id="recipe_instructions" name="recipe_instructions" rows="6" placeholder="Enter one step per line" required></textarea>
+                    <textarea id="recipe_instructions" name="recipe_instructions" rows="6" maxlength="30000" required>{{ recipe_data['instructions'] if recipe_data else '' }}</textarea>
                 
                 <h3 onclick="toggleDropdown('tagCategoryDropdown', this.querySelector('.dropdown-icon'))" class="dropdown-heading">
                     Tags: <span class="dropdown-icon">⮟</span>
@@ -76,7 +82,7 @@
         const ingredientsTextarea = document.getElementById('recipe_ingredient_list');
 
         ingredientsTextarea.addEventListener('focus', () => {
-            if (!ingredientsTextarea.value.startsWith("• ")) {
+            if (ingredientsTextarea.value.trim() === '') {
                 ingredientsTextarea.value = "• ";
                 ingredientsTextarea.selectionStart = ingredientsTextarea.selectionEnd = ingredientsTextarea.value.length;
             }

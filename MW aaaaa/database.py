@@ -19,14 +19,15 @@ def initialise_database():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
-        profile_picture TEXT NOT NULL
+        profile_picture TEXT NOT NULL,
+        is_admin INTEGER DEFAULT 0
     );'''
 
     create_table_recipes = '''
     CREATE TABLE IF NOT EXISTS recipes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
-        title TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
         intro TEXT,
         ingredient_list TEXT,
         ingredient_tags TEXT,

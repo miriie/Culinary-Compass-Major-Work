@@ -8,9 +8,15 @@ import string
 import json
 from markupsafe import Markup
 import re
+from better_profanity import profanity
 
 app = Flask(__name__)
 app.secret_key = 'wowowow'
+
+profanity.load_censor_words()
+
+def censor_text(text):
+    return profanity.censor(text) if text else text
 
 @app.route('/static/serviceWorker.js')
 def sw():
@@ -36,7 +42,47 @@ def recipe_page(recipe_id):
     connection = get_db_connection()
     cursor = connection.cursor()
     connection.execute("PRAGMA foreign_keys = ON;")
+    
+    # Fetch recipe information based on the recipe ID
+    query_recipe = '''
+    SELECT recipes.*, users.username AS writer_username, users.id AS writer_id, users.profile_picture AS writer_pic
+    FROM recipes
+    JOIN users ON recipes.user_id = users.id
+    WHERE recipes.id = ?
+    '''
+    recipe = connection.execute(query_recipe, (recipe_id,)).fetchone()
 
+    # Fetch reviews for the recipe
+    query_reviews = '''
+    SELECT users.username, reviews.*, reviews.title AS review_title
+    FROM reviews
+    JOIN users ON reviews.user_id = users.id
+    WHERE reviews.recipe_id = ?
+    '''
+    reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
+
+    # Load annotations and is favourited if logged in 
+    is_favourited = False
+    user_review = None
+    if 'user_id' in session:
+        user_id = session['user_id']
+        is_favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone() is not None
+        
+        user_review = cursor.execute(
+            "SELECT * FROM reviews WHERE recipe_id = ? AND user_id = ?",
+            (recipe_id, user_id)
+        ).fetchone()
+        
+        query_annotations = '''
+        SELECT annotations.highlighted_text, annotations.annotation_text 
+        FROM annotations
+        JOIN users ON annotations.user_id = users.id
+        WHERE annotations.recipe_id = ? AND annotations.user_id = ?
+        '''
+        annotations = connection.execute(query_annotations, (recipe_id, user_id)).fetchall()
+    else:
+        annotations = []
+    
     if request.method == 'POST':
         user_id = session['user_id']
         action = request.form.get('action')
@@ -44,8 +90,8 @@ def recipe_page(recipe_id):
         if action == 'submit_review':
             # Handle the form submission for adding a review
             rating = int(request.form['rating'])
-            review_title = request.form['review_title']
-            review_text = request.form['review']
+            review_title = censor_text(request.form['review_title'])
+            review_text = censor_text(request.form['review'])
             profile_picture = session['profile_picture']
             
             # Get the current time in Sydney, Australia
@@ -71,6 +117,35 @@ def recipe_page(recipe_id):
             else:
                 cursor.execute("INSERT INTO favourites (recipe_id, user_id) VALUES (?, ?)", (recipe_id, user_id))
         
+        elif action == 'delete_recipe':
+            if user_id == recipe['user_id'] or session.get('is_admin'):
+                cursor.execute("DELETE FROM recipes WHERE id = ?", (recipe_id,))
+                connection.commit()
+                return redirect(url_for('homepage'))
+
+        elif action == 'delete_review':
+            review_title = request.form.get('review_title')
+            cursor.execute("DELETE FROM reviews WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id))
+            connection.commit()
+
+        elif action == 'edit_review':
+            if user_id != recipe['user_id']:
+                new_rating = int(request.form['rating'])
+                new_title = censor_text(request.form['review_title'])
+                new_text = censor_text(request.form['review'])
+
+                cursor.execute('''
+                    UPDATE reviews
+                    SET rating = ?, title = ?, review = ?
+                    WHERE recipe_id = ? AND user_id = ?
+                ''', (new_rating, new_title, new_text, recipe_id, user_id))
+
+                # recalculate new avg
+                cursor.execute("SELECT ROUND(AVG(rating), 1) FROM reviews WHERE recipe_id = ?", (recipe_id,))
+                average_rating = cursor.fetchone()[0]
+                cursor.execute("UPDATE recipes SET rating = ? WHERE id = ?", (average_rating, recipe_id))
+
+        
         elif action == 'submit_annotation':
             highlighted_text = request.form['highlighted_text']
             annotation_text = request.form['annotation_text']
@@ -82,40 +157,7 @@ def recipe_page(recipe_id):
         connection.commit()
         return redirect(url_for('recipe_page', recipe_id=recipe_id))
     
-    # Fetch recipe information based on the recipe ID
-    query_recipe = '''
-    SELECT recipes.*, users.username AS writer_username, users.id AS writer_id, users.profile_picture AS writer_pic
-    FROM recipes
-    JOIN users ON recipes.user_id = users.id
-    WHERE recipes.id = ?
-    '''
-    recipe = connection.execute(query_recipe, (recipe_id,)).fetchone()
-
-    # Fetch reviews for the recipe
-    query_reviews = '''
-    SELECT users.username, reviews.*, reviews.title AS review_title
-    FROM reviews
-    JOIN users ON reviews.user_id = users.id
-    WHERE reviews.recipe_id = ?
-    '''
-    reviews = connection.execute(query_reviews, (recipe_id,)).fetchall()
-
-    # Load annotations and is favourited if logged in 
-    is_favourited = False
-    if 'user_id' in session:
-        user_id = session['user_id']
-        is_favourited = cursor.execute("SELECT 1 FROM favourites WHERE recipe_id = ? AND user_id = ?", (recipe_id, user_id)).fetchone() is not None
-        query_annotations = '''
-        SELECT annotations.highlighted_text, annotations.annotation_text 
-        FROM annotations
-        JOIN users ON annotations.user_id = users.id
-        WHERE annotations.recipe_id = ? AND annotations.user_id = ?
-        '''
-        annotations = connection.execute(query_annotations, (recipe_id, user_id)).fetchall()
-    else:
-        annotations = []
-
-        connection.close()
+    connection.close()
 
     if recipe:
         # sorting tags
@@ -135,6 +177,7 @@ def recipe_page(recipe_id):
             "writer_username": recipe['writer_username'],
             "writer_id": recipe['writer_id'],
             "writer_pic": recipe['writer_pic'],
+            "id": recipe['id'],
             "title": recipe['title'],
             "instructions": recipe['instructions'],
             "intro": recipe['intro'],
@@ -162,7 +205,7 @@ def recipe_page(recipe_id):
             ]
         }
         recipe_data["instructions"] = highlight_text(recipe_data["instructions"], recipe_data["annotations"])
-        return render_template('recipepage.html', recipe=recipe_data, tags=tags, ingredient_tags=ingredient_tags, is_favourited=is_favourited)
+        return render_template('recipepage.html', recipe=recipe_data, tags=tags, ingredient_tags=ingredient_tags, is_favourited=is_favourited, user_review=user_review)
     else:
         return "Page not found", 404
 
@@ -276,6 +319,14 @@ def profile(user_id):
 @app.route('/post', methods=['GET', 'POST'])
 def post():
     connection = get_db_connection()
+    cursor = connection.cursor()
+
+    recipe_id = request.args.get('recipe_id') or request.form.get('recipe_id')
+    recipe = None
+    recipe_data = None
+    selected_tags = {}
+    selected_ingredients = {}
+    
     tag_categories = {
         "Type of Meal": ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"],
         "Cuisine": ["Japanese", "Italian", "American", "Mexican", "Chinese", "Indian", "French", "Korean"],
@@ -298,33 +349,57 @@ def post():
         "Miscellaneous": []
     }
 
-    selected_tags = {}
-    for category, tags in tag_categories.items():
-        key = category.lower().replace(" ", "_") 
-        selected_tags[key] = request.form.getlist(key)
-    selected_ingredients = {}
-    for category, tags in ingredient_tags.items():
-        key = category.lower().replace(" ", "_") 
-        selected_ingredients[key] = request.form.getlist(key)  
-    
+    for category in tag_categories:
+        key = category.lower().replace(" ", "_")
+        selected_tags[key] = []
+
+    for category in ingredient_tags:
+        key = category.lower().replace(" ", "_")
+        selected_ingredients[key] = []
+        
+    if recipe_id:
+        recipe = connection.execute("SELECT * FROM recipes WHERE id = ?", (recipe_id,)).fetchone()
+        is_admin = session.get('is_admin', False)
+        if recipe['user_id'] != session.get('user_id') and not is_admin:
+            connection.close()
+            return "You do not have permission to edit this recipe", 403
+        recipe_data = recipe
+        selected_tags = json.loads(recipe['tags'])
+        selected_ingredients = json.loads(recipe['ingredient_tags'])
+
     if request.method == 'POST':
         recipe_writer = session['user_id']
-        recipe_title = request.form['recipe_title']
-        recipe_intro = request.form['recipe_intro']
-        recipe_ingredient_list = request.form['recipe_ingredient_list']
-        recipe_ingredient_tags = json.dumps(selected_ingredients)
-        recipe_instructions = request.form['recipe_instructions']
+        recipe_title = censor_text(request.form['recipe_title'])
+        recipe_intro = censor_text(request.form['recipe_intro'])
+        recipe_ingredient_list = censor_text(request.form['recipe_ingredient_list'])
+        recipe_instructions = censor_text(request.form['recipe_instructions'])
+
+        for category in tag_categories:
+            key = category.lower().replace(" ", "_")
+            selected_tags[key] = request.form.getlist(key)
+        for category in ingredient_tags:
+            key = category.lower().replace(" ", "_")
+            selected_ingredients[key] = request.form.getlist(key)
+
         recipe_tags = json.dumps(selected_tags)
-        insert_recipe_query = '''
-        INSERT INTO recipes (user_id, title, intro, ingredient_list, ingredient_tags, instructions, tags, image)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        '''
-        cursor = connection.execute(insert_recipe_query, (recipe_writer, recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, "images/splatoon3.jpg"))
+        recipe_ingredient_tags = json.dumps(selected_ingredients)
+
+        if recipe_id:
+            cursor.execute('''
+                UPDATE recipes SET title = ?, intro = ?, ingredient_list = ?, ingredient_tags = ?, instructions = ?, tags = ?
+                WHERE id = ?
+            ''', (recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, recipe_id))
+        else:
+            cursor.execute('''
+                INSERT INTO recipes (user_id, title, intro, ingredient_list, ingredient_tags, instructions, tags, image)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (recipe_writer, recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, "images/splatoon3.jpg"))
+            recipe_id = cursor.lastrowid
+
         connection.commit()
-        recipe_id = cursor.lastrowid
         connection.close()
         return redirect(url_for('recipe_page', recipe_id=recipe_id))
-    return render_template('post.html', tag_categories=tag_categories, selected_tags=selected_tags, ingredient_tags=ingredient_tags, selected_ingredients=selected_ingredients)
+    return render_template('post.html', tag_categories=tag_categories, selected_tags=selected_tags, ingredient_tags=ingredient_tags, selected_ingredients=selected_ingredients, recipe_data=recipe_data, editing=bool(recipe_id))
 
 @app.route("/login", methods= ["GET", "POST"])
 def login():
@@ -344,6 +419,7 @@ def login():
             db_password = existing_user[2]
             if bcrypt.checkpw(password.encode('utf-8'), db_password):
                 session["user_id"] = user_id
+                session['is_admin'] = existing_user['is_admin']
                 session["username"] = existing_user[1]
                 session["profile_picture"] = existing_user[3]
                 session["logged_in"] = True
@@ -412,6 +488,13 @@ def register():
         session["logged_in"] = True
         return redirect(url_for('homepage'))
     return render_template("register.html", images=images)
+
+@app.route('/admin')
+def admin_dashboard():
+    if not session.get('is_admin'):
+        return "403 Forbidden", 403
+    # fetch all recipes/users/etc.
+    return render_template('admin_dashboard.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
