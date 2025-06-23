@@ -154,15 +154,16 @@ a {
 }
 
 /* Recipe Image */
-.recipe-image {
-  width: 60%;
+.recipe-image-container {
+    text-align: center;
+    margin: 20px 0;
 }
-.recipe-image img {
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 10px;
+
+.recipe-main-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 /* Reviews Section */
@@ -499,6 +500,7 @@ textarea {
   margin-bottom: 15px;
   display: block;
 }
+
 .profile-rev-title {
   text-align: left;
   font-size: 1.2em;

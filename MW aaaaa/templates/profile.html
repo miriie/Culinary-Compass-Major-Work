@@ -19,33 +19,39 @@
     <div class="user-posts">
         {% if created or favourites or reviews %}
             {% if created %}
-            <h1> Posted Recipes </h1>
-            {% for created in created %}
-                <a href="{{ url_for('recipe_page', recipe_id=created['recipe_id']) }}">
-                <div class="review-card">
-                    <p class="profile-rev-title">
-                        Recipe: {{ created['recipe_title'] }} <br>
-                    <p class="profile-rev-text">
-                        Rating: {{ created['rating'] }}
-                    </p>
+            <h1>Posted Recipes</h1>
+            <div class="recipe-grid">
+                {% for created_recipe in created %}
+                <div class="recipe-card">
+                    <a href="{{ url_for('recipe_page', recipe_id=created_recipe['recipe_id']) }}">
+                    {% if created_recipe['image'] %}
+                        <img src="{{ url_for('static', filename=created_recipe['image']) }}" alt="{{ created_recipe['recipe_title'] }}" class="recipe-image-homepage">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/background.png') }}" alt="{{ created_recipe['recipe_title'] }}" class="recipe-image-homepage">
+                    {% endif %}
+                    <div class="recipe-title">{{ created_recipe['recipe_title'] }}</div>
+                    </a>
                 </div>
-                </a>
-            {% endfor %}
+                {% endfor %}
+            </div>
             {% endif %}
-            
+
             {% if favourites %}
-            <h1> Favourited Recipes </h1>
-            {% for favourited in favourites %}
-                <a href="{{ url_for('recipe_page', recipe_id=favourited['recipe_id']) }}">
-                <div class="review-card">
-                    <p class="profile-rev-title">
-                        Recipe: {{ favourited['recipe_title'] }} <br>
-                    <p class="profile-rev-text">
-                        Rating: {{ favourited['rating'] }}
-                    </p>
+            <h1>Favourited Recipes</h1>
+            <div class="recipe-grid">
+                {% for favourited_recipe in favourites %}
+                <div class="recipe-card">
+                    <a href="{{ url_for('recipe_page', recipe_id=favourited_recipe['recipe_id']) }}">
+                    {% if favourited_recipe['image'] %}
+                        <img src="{{ url_for('static', filename=favourited_recipe['image']) }}" alt="{{ favourited_recipe['recipe_title'] }}" class="recipe-image-homepage">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/background.png') }}" alt="{{ favourited_recipe['recipe_title'] }}" class="recipe-image-homepage">
+                    {% endif %}
+                    <div class="recipe-title">{{ favourited_recipe['recipe_title'] }}</div>
+                    </a>
                 </div>
-                </a>
-            {% endfor %}
+                {% endfor %}
+            </div>
             {% endif %}
 
             {% if reviews %}

@@ -8,7 +8,11 @@
     {% for recipe in popular_recipes %}
       <div class="recipe-card">
         <a href="/recipe/{{ recipe['id'] }}">
-          <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% if recipe['image'] %}
+            <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% else %}
+            <img src="{{ url_for('static', filename='images/background.png') }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% endif %}
           <div class="recipe-title">{{ recipe['title'] }}</div>
         </a>
       </div>
@@ -20,7 +24,11 @@
     {% for recipe in explore_recipes %}
       <div class="recipe-card">
         <a href="/recipe/{{ recipe['id'] }}">
-          <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% if recipe['image'] %}
+            <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% else %}
+            <img src="{{ url_for('static', filename='images/background.png') }}" alt="{{ recipe['title'] }}" class="recipe-image-homepage">
+          {% endif %}
           <div class="recipe-title">{{ recipe['title'] }}</div>
         </a>
       </div>

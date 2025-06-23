@@ -5,18 +5,24 @@
 {% block content %}
     <div class="post-container">
     <h1 style="text-align: center;"> Post a Recipe </h1>
-    <form id="post" method="POST" action="/post">
+    <form id="post" method="POST" action="/post" enctype="multipart/form-data">
         {% if editing %}
                 <input type="hidden" name="recipe_id" value="{{ recipe_data['id'] }}">
         {% endif %}
         <div class="wrapper">
             <div class="input-box">
+                <!-- Image Upload -->
+                <h3>Upload Image:</h3>
+                {% if editing and recipe_data['image'] %}
+                    <img src="{{ url_for('static', filename=recipe_data['image']) }}" alt="Recipe Image" style="max-width: 300px; display: block; margin-bottom: 10px;">
+                {% endif %}
+                <input type="file" name="recipe_image" accept=".jpg,.jpeg,.png,.gif">
+
                 <h3> Title: </h3>
                     <input type="text" id="recipe_title" name="recipe_title"
                         value="{{ recipe_data['title'] if recipe_data else '' }}" maxlength="50" required>
                 <h3> Introduction: </h3>
-                    <input type="text" id="recipe_intro" name="recipe_intro"
-                        value="{{ recipe_data['intro'] if recipe_data else '' }}" maxlength="15000">
+                    <textarea id="recipe_intro" name="recipe_intro" rows="3" maxlength="10000">{%- if recipe_data %}{{ recipe_data['intro'] }}{%- endif %}</textarea>
                                             
                 <h3> Ingredients: </h3>
                 <textarea id="recipe_ingredient_list" name="recipe_ingredient_list" rows="6" maxlength="5000" required>{%- if recipe_data %}{{ recipe_data['ingredient_list'] }}{%- endif %}</textarea>

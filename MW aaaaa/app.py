@@ -1,5 +1,5 @@
 import random
-from flask import Flask, render_template, redirect, url_for, session, request, make_response, send_from_directory, jsonify
+from flask import Flask, render_template, redirect, url_for, session, request, make_response, send_from_directory
 from datetime import datetime
 import pytz
 import sqlite3
@@ -9,14 +9,21 @@ import json
 from markupsafe import Markup
 import re
 from better_profanity import profanity
+from werkzeug.utils import secure_filename
+from werkzeug.exceptions import RequestEntityTooLarge
+import os
 
 app = Flask(__name__)
 app.secret_key = 'wowowow'
 
 profanity.load_censor_words()
-
 def censor_text(text):
     return profanity.censor(text) if text else text
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/static/serviceWorker.js')
 def sw():
@@ -24,6 +31,10 @@ def sw():
         send_from_directory('static', 'serviceWorker.js'))
     response.headers['Content-Type'] = 'application/javascript'
     return response
+
+@app.errorhandler(RequestEntityTooLarge)
+def handle_large_file(error):
+    return "File too large. Max size is 2MB.", 413
 
 def get_db_connection():
     connection = sqlite3.connect('my-database.db')
@@ -406,6 +417,8 @@ def post():
         recipe_intro = censor_text(request.form['recipe_intro'])
         recipe_ingredient_list = censor_text(request.form['recipe_ingredient_list'])
         recipe_instructions = censor_text(request.form['recipe_instructions'])
+        recipe_image = request.files.get('recipe_image')
+        recipe_image_filename = None
 
         for category in tag_categories:
             key = category.lower().replace(" ", "_")
@@ -417,16 +430,31 @@ def post():
         recipe_tags = json.dumps(selected_tags)
         recipe_ingredient_tags = json.dumps(selected_ingredients)
 
+        if recipe_image and recipe_image.filename != '':
+            if allowed_file(recipe_image.filename):
+                filename = secure_filename(recipe_image.filename)
+                upload_folder = os.path.join(app.root_path, 'static', 'uploads')
+                os.makedirs(upload_folder, exist_ok=True)
+                save_path = os.path.join(upload_folder, filename)
+                recipe_image.save(save_path)
+                recipe_image_filename = f"uploads/{filename}"
+            else:
+                connection.close()
+                return "Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed.", 400
+   
+
         if recipe_id:
+            if not recipe_image_filename:  # if user didn't upload a new image
+                recipe_image_filename = recipe_data['image']
             cursor.execute('''
-                UPDATE recipes SET title = ?, intro = ?, ingredient_list = ?, ingredient_tags = ?, instructions = ?, tags = ?
+                UPDATE recipes SET title = ?, intro = ?, ingredient_list = ?, ingredient_tags = ?, instructions = ?, tags = ?, image = ?
                 WHERE id = ?
-            ''', (recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, recipe_id))
+            ''', (recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, recipe_image_filename, recipe_id))
         else:
             cursor.execute('''
                 INSERT INTO recipes (user_id, title, intro, ingredient_list, ingredient_tags, instructions, tags, image)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (recipe_writer, recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, "images/splatoon3.jpg"))
+            ''', (recipe_writer, recipe_title, recipe_intro, recipe_ingredient_list, recipe_ingredient_tags, recipe_instructions, recipe_tags, recipe_image_filename))
             recipe_id = cursor.lastrowid
 
         connection.commit()

@@ -72,7 +72,11 @@
             {% for recipe in recipes %}
                 <div class="search-recipe-card">
                     <a href="/recipe/{{ recipe['id'] }}" class="search-recipe-link">
-                        <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="search-recipe-image">
+                        {% if recipe['image'] %}
+                            <img src="{{ url_for('static', filename=recipe['image']) }}" alt="{{ recipe['title'] }}" class="search-recipe-image">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/background.png') }}" alt="{{ recipe['title'] }}" class="search-recipe-image">
+                        {% endif %}
                         <div class="search-recipe-info">
                             <p class="search-recipe-title">{{ recipe['title'] }}</p>
                             <p class="search-recipe-rating">Rating: {{ recipe['rating'] or 'N/A' }}</p>
