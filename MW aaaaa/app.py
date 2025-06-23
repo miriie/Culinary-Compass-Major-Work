@@ -133,6 +133,11 @@ def recipe_page(recipe_id):
                 cursor.execute("DELETE FROM recipes WHERE id = ?", (recipe_id,))
                 connection.commit()
                 return redirect(url_for('homepage'))
+        
+        elif request.form.get("action") == "delete_annotation":
+            annotation_id = request.form.get("annotation_id")
+            connection.execute("DELETE FROM annotations WHERE id = ?", (annotation_id,))
+            connection.commit()
 
         elif action == 'delete_review':
             review_title = request.form.get('review_title')

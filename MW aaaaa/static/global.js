@@ -115,10 +115,10 @@ function resetToInputFields() {
   `;
 }
 
-// Start/Pause/Resume button handler
+// Start/Pause/Resume
 startBtn.onclick = () => {
   if (countdown && !isPaused) {
-    // Pause the timer
+    // Pause
     clearInterval(countdown);
     countdown = null;
     isPaused = true;
@@ -131,7 +131,7 @@ startBtn.onclick = () => {
 
     startBtn.textContent = "Resume";
   } else if (isPaused) {
-    // Resume the timer
+    // Resume
     isPaused = false;
     startTime = Date.now();
     duration = pausedTimeLeft;
@@ -145,7 +145,7 @@ startBtn.onclick = () => {
 
     countdown = setInterval(tick, 200);
   } else {
-    // Start new timer from inputs
+    // Start new timer
     const hours = parseInt(document.getElementById("hours-input").value) || 0;
     const minutes = parseInt(document.getElementById("minutes-input").value) || 0;
     const seconds = parseInt(document.getElementById("seconds-input").value) || 0;
@@ -166,12 +166,12 @@ startBtn.onclick = () => {
   }
 };
 
-// Reset button handler
+// Reset button
 resetBtn.onclick = () => {
   resetToInputFields();
 };
 
-// Restore timer state and popup visibility on page load
+// Save timer data on reload
 window.addEventListener('load', () => {
   const savedStart = parseInt(localStorage.getItem('timerStart'));
   const savedDuration = parseInt(localStorage.getItem('timerDuration'));
@@ -229,7 +229,7 @@ window.addEventListener('load', () => {
     resetToInputFields();
   }
 
-  // Restore draggable popup position
+  // Restore popup position
   if (savedTop && savedLeft) {
     timerPopup.style.top = savedTop;
     timerPopup.style.left = savedLeft;
@@ -238,7 +238,7 @@ window.addEventListener('load', () => {
   }
 });
 
-// Draggable popup logic (same as before, with clamping inside viewport)
+// Draggable popup logic
 let offsetX = 0, offsetY = 0, isDragging = false;
 
 header.addEventListener("mousedown", (e) => {
@@ -296,67 +296,3 @@ function toggleDropdown(dropdownId, iconElement) {
     icon.textContent = "⮝";
   }
 }
-
-
-
-// Annotation JS
-document.addEventListener('DOMContentLoaded', function () {
-    const showBtn = document.getElementById('show-annotation-btn');
-    const annotationForm = document.getElementById('annotation-form');
-    const highlightedTextInput = document.getElementById('highlighted-text');
-    const annotationTextarea = document.getElementById('annotation');
-
-    document.addEventListener('mouseup', function (event) {
-        const selection = window.getSelection();
-        const text = selection.toString().trim();
-        showBtn.style.display = 'none';
-
-        const anchorNode = selection.anchorNode;
-        const parent = anchorNode && anchorNode.parentElement;
-
-        if (
-            text.length > 0 &&
-            parent &&
-            document.getElementById('instructions-text').contains(parent)
-        ) {
-            highlightedTextInput.value = text;
-
-            const range = selection.getRangeAt(0);
-            const rect = range.getBoundingClientRect();
-
-            showBtn.style.top = `${window.scrollY + rect.top - 30}px`;
-            showBtn.style.left = `${window.scrollX + rect.left}px`;
-            showBtn.style.display = 'inline-block';
-        }
-    });
-
-    showBtn.addEventListener('click', function () {
-        showBtn.style.display = 'none';
-        annotationForm.style.display = 'block';
-        annotationTextarea.focus();
-    });
-
-    // Highlights → scroll to annotation
-    document.querySelectorAll('mark.highlighted-text').forEach((mark, i) => {
-      mark.addEventListener('click', () => {
-        const box = document.getElementById('annotation-' + i);
-        if (box) {
-          box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          box.classList.add('flash');
-          setTimeout(() => box.classList.remove('flash'), 500);
-        }
-      });
-    });
-
-    // Comments → scroll to highlight
-    document.querySelectorAll('.annotation-box').forEach((box, i) => {
-      box.addEventListener('click', () => {
-        const mark = document.getElementById('highlight-' + i);
-        if (mark) {
-          mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          mark.classList.add('flash');
-          setTimeout(() => mark.classList.remove('flash'), 500);
-        }
-      });
-    });
-  });

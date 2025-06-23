@@ -84,6 +84,33 @@
     </form>
     
     <script>
+        // Save after refresh
+        document.addEventListener('DOMContentLoaded', function () {
+            const fields = ['recipe_title', 'recipe_intro', 'recipe_ingredient_list', 'recipe_instructions'];
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+
+                // Restore saved value
+                const saved = localStorage.getItem(id);
+                if (saved) el.value = saved;
+
+                // Save on input
+                el.addEventListener('input', () => {
+                    localStorage.setItem(id, el.value);
+                });
+            });
+
+            // Clear after form submit
+            const form = document.getElementById('post');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    fields.forEach(id => localStorage.removeItem(id));
+                });
+            }
+        });
+
         // Dot-point input
         const ingredientsTextarea = document.getElementById('recipe_ingredient_list');
 

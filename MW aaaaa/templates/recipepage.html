@@ -68,35 +68,42 @@
         
         <!-- Annotations -->
         {% if session.get('logged_in') %}
-        <button id="show-annotation-btn" style="display: none; position: absolute;">+</button>
-        <form id="annotation-form" method="POST" style="display:none; margin-top: 20px;">
-            <input type="hidden" name="action" value="submit_annotation">
-            <input type="hidden" name="recipe_id" value="{{ recipe['id'] }}">
-            <input type="hidden" name="highlighted_text" id="highlighted-text">
+        <div id="annotation-section">
+            <div id="annotation-sidebar">
+            <button id="show-annotation-btn" style="display: none; position: absolute;">+</button>
+                <form id="annotation-form" method="POST" style="display:none; margin-top: 20px;">
+                    <input type="hidden" name="action" value="submit_annotation">
+                    <input type="hidden" name="recipe_id" value="{{ recipe['id'] }}">
+                    <input type="hidden" name="highlighted_text" id="highlighted-text">
 
-            <label for="annotation">Your Annotation:</label>
-            <textarea name="annotation_text" id="annotation" rows="3" required></textarea>
+                    <label for="annotation">Your Annotation:</label>
+                    <textarea name="annotation_text" id="annotation" rows="3" required></textarea>
 
-            <br>
-            <button type="submit">Save Annotation</button>
-        </form>
-
-        <div id="annotation-sidebar">
-            <h3>Annotations</h3>
-            {% if recipe.annotations %}
-                <div class="annotations-container">
-                    {% for annotation in recipe.annotations %}
-                        <div class="annotation-box" id="annotation-{{ loop.index0 }}" data-index="{{ loop.index0 }}">
-                            <p class="highlight">“{{ annotation.highlighted_text }}”</p>
-                            <p class="note">{{ annotation.annotation_text }}</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p>No annotations yet.</p>
-            {% endif %}
+                    <br>
+                    <button class= "dark-button small-button" type="submit">Save Annotation</button>
+                </form>
+                <h3>Annotations</h3>
+                {% if recipe.annotations %}
+                    <div class="annotations-container">
+                        {% for annotation in recipe.annotations %}
+                            <div class="annotation-box" id="annotation-{{ loop.index0 }}" data-index="{{ loop.index0 }}">
+                                {% if session.get('user_id') == annotation.user_id or session.get('is_admin') %}
+                                    <form method="POST" onsubmit="return confirm('Delete this annotation?')" style="text-align: right;">
+                                        <input type="hidden" name="action" value="delete_annotation">
+                                        <input type="hidden" name="annotation_id" value="{{ annotation.id }}">
+                                        <button type="submit" class="dark-button small-button">Delete</button>
+                                    </form>
+                                {% endif %}
+                                <p class="highlight">“{{ annotation.highlighted_text }}”</p>
+                                <p class="note">{{ annotation.annotation_text }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No annotations yet.</p>
+                {% endif %}
+            </div>
         </div>
-
         {% endif %}
     </div>
 
@@ -158,13 +165,14 @@
         <h2>Reviews:</h2>
         {% for review in recipe['reviews'] %}
             <div class="review">
-                {% if session.get('user_id') == review.user_id %}
-                    <form method="POST">
+                {% if session.get('user_id') == review.user_id or session.get('is_admin') %}
+                    <form method="POST" onsubmit="return confirm('Delete this review?')" style="text-align: right;">
                         <input type="hidden" name="action" value="delete_review">
                         <input type="hidden" name="review_title" value="{{ review.review_title }}">
-                        <button type="submit" onclick="return confirm('Delete this review?')">Delete</button>
+                        <button type="submit" class="dark-button small-button">Delete</button>
                     </form>
                 {% endif %}
+                
                 <div class="profile">
                     <img src="{{ url_for('static', filename=review['profile_picture'] if review['profile_picture'] else 'images/default_profile.png') }}" alt="Profile Picture" class="profile-pic">
                     <div class="review-header">
@@ -180,5 +188,67 @@
             <p>No reviews available.</p>
         {% endfor %}
     </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const showBtn = document.getElementById('show-annotation-btn');
+        const annotationForm = document.getElementById('annotation-form');
+        const highlightedTextInput = document.getElementById('highlighted-text');
+        const annotationTextarea = document.getElementById('annotation');
 
+        document.addEventListener('mouseup', function (event) {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            showBtn.style.display = 'none';
+
+            const anchorNode = selection.anchorNode;
+            const parent = anchorNode && anchorNode.parentElement;
+
+            if (
+                text.length > 0 &&
+                parent &&
+                document.getElementById('instructions-text').contains(parent)
+            ) {
+                highlightedTextInput.value = text;
+
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+
+                showBtn.style.top = `${window.scrollY + rect.top - 30}px`;
+                showBtn.style.left = `${window.scrollX + rect.left}px`;
+                showBtn.style.display = 'inline-block';
+            }
+        });
+
+        showBtn.addEventListener('click', function () {
+            showBtn.style.display = 'none';
+            annotationForm.style.display = 'block';
+            annotationTextarea.focus();
+        });
+
+        // Highlights → scroll to annotation
+        document.querySelectorAll('mark.highlighted-text').forEach((mark, i) => {
+        mark.addEventListener('click', () => {
+            const box = document.getElementById('annotation-' + i);
+            if (box) {
+            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            box.classList.add('flash');
+            setTimeout(() => box.classList.remove('flash'), 500);
+            }
+        });
+        });
+
+        // Comments → scroll to highlight
+        document.querySelectorAll('.annotation-box').forEach((box, i) => {
+        box.addEventListener('click', () => {
+            const mark = document.getElementById('highlight-' + i);
+            if (mark) {
+            mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            mark.classList.add('flash');
+            setTimeout(() => mark.classList.remove('flash'), 500);
+            }
+        });
+        });
+    });
+    </script>
 {% endblock %}
