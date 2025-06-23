@@ -382,7 +382,6 @@ textarea {
   align-self: flex-start;
 }
 
-/* Buttons */
 .search-search-button {
   background-color: #144552;
   color: white;
@@ -394,6 +393,44 @@ textarea {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
+}
+
+/* Search Tags */
+
+.tag-toggle {
+  display: inline-block;
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: auto;
+  min-width: 80px;
+  font-weight: bold;
+  background-color: #144552;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+  white-space: nowrap;
+  text-align: center;
+  border: 3px solid transparent;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.tag-toggle.include {
+  background-color: #8bc34a;
+  border-color: #558b2f;
+}
+.tag-toggle.include::after {
+  content: " ✅";
+}
+
+.tag-toggle.exclude {
+  background-color: #d32f2f;
+  border-color: #a92424;
+}
+.tag-toggle.exclude::after {
+  content: " 🚫";
 }
 
 /* Utility and Misc */
@@ -431,7 +468,7 @@ textarea {
   border-color: #0b3b4c;
 }
 
-/* Profile Section */
+/* Profile */
 .profile-header {
   background: white;
   padding: 20px;
@@ -578,7 +615,12 @@ textarea {
 /* Tags filter inside posting recipes */
 
 .category-block {
-  margin-bottom: 24px;
+  flex-basis: 100%;
+  width: 100%;
+  margin-bottom: 15px;
+}
+.category-block h3 {
+  text-align: left;
 }
 .tags-row {
   display: flex;
@@ -613,7 +655,7 @@ textarea {
 }
 
 .dropdown-content.open {
-  max-height: 50000px; /* large enough to show full content */
+  max-height: 5000px;
 }
 
 
@@ -636,7 +678,7 @@ textarea {
     background-color: #144552;
     color: white;
     border: none;
-    padding: 4px 7px;
+    padding: 4px 8px;
     border-radius: 50%;
     font-size: 18px;
     cursor: pointer;
@@ -682,33 +724,6 @@ mark.highlighted-text {
 
 .flash {
   background: #fff3a0;
-}
-
-.tag-toggle {
-  cursor: pointer;
-  user-select: none;
-  padding: 4px 8px;
-  border-radius: 5px;
-  margin: 2px;
-  display: inline-block;
-
-  /* Neutral (default) style */
-  background-color: transparent;
-  color: inherit;
-  border: 1px solid #ccc;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.tag-toggle.include {
-  background-color: #a6e3a1; /* greenish */
-  color: #064e03;
-  border-color: #064e03;
-}
-
-.tag-toggle.exclude {
-  background-color: #f28b82; /* reddish */
-  color: #5a0000;
-  border-color: #5a0000;
 }
 
 

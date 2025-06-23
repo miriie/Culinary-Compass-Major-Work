@@ -265,8 +265,10 @@ def search():
         "Miscellaneous": []
     }
 
-    selected_tags = request.form.getlist('tags')
-    selected_ingredients = request.form.getlist('ingredient_tags')
+    include_tags = [t for t in request.form.getlist('include_tags[]') if t]
+    exclude_tags = [t for t in request.form.getlist('exclude_tags[]') if t]
+    include_ingredients = [i for i in request.form.getlist('include_ingredients[]') if i]
+    exclude_ingredients = [i for i in request.form.getlist('exclude_ingredients[]') if i]
     searched_name = request.form.get('search-bar', '') if request.method == 'POST' else '' 
     
     search_query = "SELECT * FROM recipes WHERE 1=1"
@@ -287,25 +289,34 @@ def search():
             LIKE ?"""
         parameters.append(searched_name)
 
-    for tag in selected_tags:
+    for tag in include_tags:
         search_query += " AND tags LIKE ?"
         parameters.append(f"%{tag}%")
 
-    for tag in selected_ingredients:
+    for ing in include_ingredients:
         search_query += " AND ingredient_tags LIKE ?"
+        parameters.append(f"%{ing}%")
+
+    for tag in exclude_tags:
+        search_query += " AND tags NOT LIKE ?"
         parameters.append(f"%{tag}%")
+
+    for ing in exclude_ingredients:
+        search_query += " AND ingredient_tags NOT LIKE ?"
+        parameters.append(f"%{ing}%")
 
     search_message_parts = []
 
     if searched_name:
         search_message_parts.append(f'Recipe Title containing "{request.form.get("search-bar", "")}"')
-
-    if selected_tags:
-        search_message_parts.append(f'Tags: {", ".join(selected_tags)}')
-
-    if selected_ingredients:
-        search_message_parts.append(f'Ingredients: {", ".join(selected_ingredients)}')
-
+    if include_tags:
+        search_message_parts.append(f"Tags included: {', '.join(include_tags)}")
+    if exclude_tags:
+        search_message_parts.append(f"Tags excluded: {', '.join(exclude_tags)}")
+    if include_ingredients:
+        search_message_parts.append(f"Ingredients included: {', '.join(include_ingredients)}")
+    if exclude_ingredients:
+        search_message_parts.append(f"Ingredients excluded: {', '.join(exclude_ingredients)}")
     if search_message_parts:
         message = "Showing Results for: " + "; ".join(search_message_parts)
     else:
@@ -315,7 +326,7 @@ def search():
     recipes = cursor.fetchall()
     connection.commit()
     connection.close()
-    return render_template('search.html', recipes=recipes, tag_categories=tag_categories, ingredient_tags=ingredient_tags, selected_tags=selected_tags, selected_ingredients=selected_ingredients, message=message)
+    return render_template('search.html', recipes=recipes, tag_categories=tag_categories, ingredient_tags=ingredient_tags, selected_tags=include_tags, selected_ingredients=include_ingredients, message=message)
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 def profile(user_id):
