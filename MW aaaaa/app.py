@@ -241,6 +241,7 @@ def search():
     # Fetch recipes ordered alphabetically by title
     cursor.execute("SELECT * FROM recipes ORDER BY title ASC")
     recipes = cursor.fetchall()
+    
     tag_categories = {
         "Type of Meal": ["Breakfast", "Lunch", "Dinner", "Dessert", "Snack"],
         "Cuisine": ["Japanese", "Italian", "American", "Mexican", "Chinese", "Indian", "French", "Korean"],
@@ -249,51 +250,72 @@ def search():
         "Style": ["Stir-fried", "Deep-fried", "Grilled", "Baked", "Roasted", "Steamed", "Boiled", "Raw"]
     }
 
-    selected_tags = [tag.strip() for tag in request.args.getlist('tags') or request.form.getlist('tags')] # get selected tags from recipe page buttons or from search filter
+    ingredient_tags = {
+        "Carbs": ["Flour", "Bread", "Rice", "Pasta", "Oats", "Tortilla", "Barley", "Wheat"],
+        "Dairy": ["Milk", "Butter", "Cheese", "Yoghurt", "Cream", "Condensed Milk", "Ice Cream"],
+        "Meat": ["Beef", "Pork", "Chicken", "Duck", "Turkey", "Goat", "Lamb", "Rabbit"],
+        "Seafood": ["Fish", "Salmon", "Tuna", "Shrimp", "Prawns", "Crab", "Lobster", "Squid", "Octopus", "Mussels", "Scallops", "Clams"],
+        "Non-Vegan": ["Eggs", "Lard", "Gelatin"],
+        "Vegetables": ["Onion", "Garlic", "Tomato", "Carrot", "Bell Pepper", "Chilli", "Broccoli", "Spinach", "Mushroom", "Cabbage", "Zucchini", "Chickpeas", "Lentils", "Black Beans", "Kidney Beans", "Green Peas"],
+        "Fruits": ["Lemon", "Avocado", "Apple", "Banana", "Strawberry", "Mango", "Grapes", "Pineapple", "Orange"],
+        "Nuts": ["Nuts", "Peanuts", "Walnuts", "Hazelnuts", "Pistachios", "Almonds", "Cashews"],
+        "Condiments": ["Soy Sauce", "Vinegar", "Tomato Sauce", "Mayonnaise", "Ketchup", "Mustard", "Hot Sauce"],
+        "Seasonings": ["Sugar", "Salt", "Pepper", "Paprika", "Cumin", "Cinnamon", "Chilli Flakes", "Garlic Powder", "Ginger", "Oregano", "Turmeric"],
+        "Oils": ["Olive Oil", "Vegetable Oil", "Canola Oil", "Sesame Oil", "Coconut Oil", "Ghee"],
+        "Miscellaneous": []
+    }
+
+    selected_tags = request.form.getlist('tags')
+    selected_ingredients = request.form.getlist('ingredient_tags')
     searched_name = request.form.get('search-bar', '') if request.method == 'POST' else '' 
     
+    search_query = "SELECT * FROM recipes WHERE 1=1"
+    parameters = []
+
     if searched_name:
         banned_punctuation = string.punctuation + ":'" # get rid of inconsistencies when user searches up a term
         searched_name = searched_name.replace(" ", "").translate(str.maketrans("", "", banned_punctuation)).lower()
         searched_name = f"%{searched_name}%" # if the searched name is partially typed up, and is in one of the databases' recipe titles, the search works
-    
-        # haha what a hot mess (again homogenising recipe titles and getting rid of grammar so it's easier to match)
-        cursor.execute("""
-            SELECT * FROM recipes WHERE LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+
+        search_query += """ AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
                 title, ' ', ''),
                 ',', ''),
                 '.', ''),
                 ':', ''),
                 "'", ''),
                 '"', '')) 
-            LIKE ?""", (searched_name,))
+            LIKE ?"""
+        parameters.append(searched_name)
 
+    for tag in selected_tags:
+        search_query += " AND tags LIKE ?"
+        parameters.append(f"%{tag}%")
 
+    for tag in selected_ingredients:
+        search_query += " AND ingredient_tags LIKE ?"
+        parameters.append(f"%{tag}%")
 
-        existing_recipe = cursor.fetchall()
-        
-        # check if recipe name searched exists in the database
-        if existing_recipe:
-            recipes = existing_recipe
-            searched_name = request.form["search-bar"]
-            return render_template("search.html", recipes=recipes, tag_categories=tag_categories, message= f'Showing results for "{searched_name}":')
-        else:
-            searched_name = request.form["search-bar"]
-            return render_template("search.html", recipes="", tag_categories=tag_categories, message= f'No recipes found for "{searched_name}":')
+    search_message_parts = []
 
-    # filter recipes that fit selected tags
-    elif selected_tags:
-        tags_conditions = " AND ".join([f"tags LIKE '%{tag}%'" for tag in selected_tags])
-        cursor.execute(f"""SELECT * FROM recipes WHERE {tags_conditions}""")
-        existing_recipe = cursor.fetchall()
-        if existing_recipe:
-            recipes = existing_recipe
-            return render_template("search.html", recipes=recipes, tag_categories=tag_categories, message= f'Showing results for tags: "{", ".join(selected_tags)}":')
-        else:
-            return render_template("search.html", recipes="", tag_categories=tag_categories, message= f'No recipes found for tags: "{", ".join(selected_tags)}":')
-    
+    if searched_name:
+        search_message_parts.append(f'Recipe Title containing "{request.form.get("search-bar", "")}"')
+
+    if selected_tags:
+        search_message_parts.append(f'Tags: {", ".join(selected_tags)}')
+
+    if selected_ingredients:
+        search_message_parts.append(f'Ingredients: {", ".join(selected_ingredients)}')
+
+    if search_message_parts:
+        message = "Showing Results for: " + "; ".join(search_message_parts)
+    else:
+        message = "All Recipes:" 
+
+    cursor.execute(search_query, parameters)
+    recipes = cursor.fetchall()
+    connection.commit()
     connection.close()
-    return render_template('search.html', recipes=recipes, tag_categories=tag_categories, message= f'All Recipes:')
+    return render_template('search.html', recipes=recipes, tag_categories=tag_categories, ingredient_tags=ingredient_tags, selected_tags=selected_tags, selected_ingredients=selected_ingredients, message=message)
 
 @app.route('/profile/<int:user_id>', methods=['GET', 'POST'])
 def profile(user_id):

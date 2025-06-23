@@ -4,32 +4,55 @@
 
 {% block content %}
     <!-- Search Filter-->
+    <form id="search-bar" method="POST" action="/search">
+    <h3 onclick="toggleDropdown('ingredientDropdown', this.querySelector('.dropdown-icon'))" class="dropdown-heading">
+        Ingredients: <span class="dropdown-icon">⮟</span>
+    </h3>
+    <div class="tag-categories dropdown-content" id="ingredientDropdown">
+        <div class="tags-filter">
+            {% for category, ingredients in ingredient_tags.items() %}
+                <div class="category-block">
+                    <h3>{{ category }}</h3>
+                    <div class="tags-row">
+                        {% for tag in ingredients %}
+                            <div class="tag-container">
+                                <input type="checkbox" name="ingredient_tags" value="{{ tag }}" id="ingredient-{{ category }}-{{ tag }}"
+                                    {% if tag in selected_ingredients %} checked {% endif %}>
+                                <label for="ingredient-{{ category }}-{{ tag }}">{{ tag }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+        
     <h3 onclick="toggleDropdown('tagCategoryDropdown', this.querySelector('.dropdown-icon'))" class="dropdown-heading">
         Tags: <span class="dropdown-icon">⮟</span>
     </h3>
     <div class="tag-categories dropdown-content" id="tagCategoryDropdown">
-        <form id="search-bar" method="POST" action="/search">
-            <div class="tags-filter">
-                {% for category, tags in tag_categories.items() %}
-                    <div class="category-block">
-                        <h3>{{ category }}</h3>
-                        <div class="tags-row">
-                            {% for tag in tags %}
-                                <div class="tag-container">
-                                    <input type="checkbox" name="tags" value="{{ tag }}" id="{{ category }}-{{ tag }}"
-                                        {% if tag in selected_tags %} checked {% endif %}>
-                                    <label for="{{ category }}-{{ tag }}">{{ tag }}</label>
-                                </div>
-                            {% endfor %}
-                        </div>
+        <div class="tags-filter">
+            {% for category, tags in tag_categories.items() %}
+                <div class="category-block">
+                    <h3>{{ category }}</h3>
+                    <div class="tags-row">
+                        {% for tag in tags %}
+                            <div class="tag-container">
+                                <input type="checkbox" name="tags" value="{{ tag }}" id="tag-{{ category }}-{{ tag }}"
+                                    {% if tag in selected_tags %} checked {% endif %}>
+                                <label for="tag-{{ category }}-{{ tag }}">{{ tag }}</label>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-            </div>
-            <br>
-            <button type="submit" class="dark-button">Search</button>                      
-        </form>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-    </div>
+
+    <br>
+    <button type="submit" class="dark-button">Search</button>
+
+    </form>
 
     <!-- Display list of recipes -->
     <div class="search-recipe-grid">

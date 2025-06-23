@@ -684,5 +684,32 @@ mark.highlighted-text {
   background: #fff3a0;
 }
 
+.tag-toggle {
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 8px;
+  border-radius: 5px;
+  margin: 2px;
+  display: inline-block;
+
+  /* Neutral (default) style */
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid #ccc;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tag-toggle.include {
+  background-color: #a6e3a1; /* greenish */
+  color: #064e03;
+  border-color: #064e03;
+}
+
+.tag-toggle.exclude {
+  background-color: #f28b82; /* reddish */
+  color: #5a0000;
+  border-color: #5a0000;
+}
+
 
 
