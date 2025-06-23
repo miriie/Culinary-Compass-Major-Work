@@ -280,12 +280,19 @@ def search():
         "Oils": ["Olive Oil", "Vegetable Oil", "Canola Oil", "Sesame Oil", "Coconut Oil", "Ghee"],
         "Miscellaneous": []
     }
-
-    include_tags = [t for t in request.form.getlist('include_tags[]') if t]
-    exclude_tags = [t for t in request.form.getlist('exclude_tags[]') if t]
-    include_ingredients = [i for i in request.form.getlist('include_ingredients[]') if i]
-    exclude_ingredients = [i for i in request.form.getlist('exclude_ingredients[]') if i]
-    searched_name = request.form.get('search-bar', '') if request.method == 'POST' else '' 
+    
+    if request.method == 'POST':
+        include_tags = [t for t in request.form.getlist('include_tags[]') if t]
+        exclude_tags = [t for t in request.form.getlist('exclude_tags[]') if t]
+        include_ingredients = [i for i in request.form.getlist('include_ingredients[]') if i]
+        exclude_ingredients = [i for i in request.form.getlist('exclude_ingredients[]') if i]
+        searched_name = request.form.get('search-bar', '')
+    else:
+        include_tags = [request.args.get('tags')] if request.args.get('tags') else []
+        exclude_tags = []
+        include_ingredients = request.args.getlist('ingredients') if request.args.get('ingredients') else []
+        exclude_ingredients = []
+        searched_name = ''
     
     search_query = "SELECT * FROM recipes WHERE 1=1"
     parameters = []
@@ -580,13 +587,6 @@ def register():
         session["logged_in"] = True
         return redirect(url_for('homepage'))
     return render_template("register.html", images=images)
-
-@app.route('/admin')
-def admin_dashboard():
-    if not session.get('is_admin'):
-        return "403 Forbidden", 403
-    # fetch all recipes/users/etc.
-    return render_template('admin_dashboard.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

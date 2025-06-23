@@ -16,7 +16,7 @@
                 {% if editing and recipe_data['image'] %}
                     <img src="{{ url_for('static', filename=recipe_data['image']) }}" alt="Recipe Image" style="max-width: 300px; display: block; margin-bottom: 10px;">
                 {% endif %}
-                <input type="file" name="recipe_image" accept=".jpg,.jpeg,.png,.gif">
+                <input type="file" name="recipe_image" class="dark-button small-button" accept=".jpg,.jpeg,.png,.gif">
 
                 <h3> Title: </h3>
                     <input type="text" id="recipe_title" name="recipe_title"

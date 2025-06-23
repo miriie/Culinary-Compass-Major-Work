@@ -46,7 +46,7 @@
             <p><strong>Ingredient Tags:</strong></p>
                 <div class="recipe-tags">
                     {% for tag in ingredient_tags %}
-                        <a href="{{ url_for('search') }}?tags={{ tag }}" class="dark-button">{{ tag }}</a>
+                        <a href="{{ url_for('search') }}?ingredients={{ tag }}" class="dark-button">{{ tag }}</a>
                     {% endfor %}
                 </div>
             

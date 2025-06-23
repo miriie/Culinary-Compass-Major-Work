@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 import bcrypt
+import json
 
 def get_db_connection():
     """Connect to the SQLite database and return the connection object with row factory."""
@@ -94,101 +95,94 @@ def add_recipe_entries():
             1,
             "Spaghetti Bolognese",
             "A classic Italian pasta dish made with ground beef and tomatoes.",
-            "• spaghetti\n• ground beef\n• onion\n• garlic\n• tomato\n• olive oil\n• basil\n• parmesan",
-            '{"gluten": ["Pasta"], "dairy": ["Cheese"], "non-hindu_meat": ["Beef"], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": ["Onion", "Garlic", "Tomato"], "fruits": [], "legumes": [], "nuts": [], "condiments": [], "seasonings": ["Basil"], "oils": ["Olive Oil"], "miscellaneous": []}',
-            "This hearty dish combines spaghetti with a rich meat sauce simmered with aromatic herbs and olive oil. Perfect for a comforting family meal.",
-            '{"type_of_meal": ["Dinner"], "cuisine": ["Italian"], "taste": ["Comfort Food"]}',
+            "• 200g spaghetti\n• 250g ground beef\n• 1 onion, finely chopped\n• 2 cloves garlic, minced\n• 400g canned tomatoes\n• 2 tbsp olive oil\n• 1 tsp dried basil\n• Grated parmesan, to serve",
+            '{"gluten": ["Spaghetti"], "dairy": ["Parmesan"], "non-hindu_meat": ["Beef"], "vegetables": ["Onion", "Garlic", "Tomato"], "seasonings": ["Basil"], "oils": ["Olive Oil"]}',
+            "1. Cook the spaghetti according to package instructions. Drain and set aside.\n2. Heat olive oil in a pan. Sauté onion until soft.\n3. Add garlic and cook briefly.\n4. Brown the beef in the pan.\n5. Stir in tomatoes and basil. Simmer 20 minutes.\n6. Season to taste and serve over spaghetti with parmesan.",
+            '{"type_of_meal": ["Dinner"], "cuisine": ["Italian"], "taste": ["Savory", "Comfort Food"]}',
             "images/pikmin4.jpg"
         ),
-
         (
             2,
             "Sushi Rolls",
             "Fresh, hand-rolled sushi with fish and vegetables.",
-            "• sushi rice\n• nori\n• salmon\n• cucumber\n• avocado\n• soy sauce\n• wasabi",
-            '{"gluten": ["Rice"], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": ["Fish"], "non-vegan": [], "vegetables": ["Cucumber", "Avocado"], "fruits": [], "legumes": [], "nuts": [], "condiments": ["Soy Sauce"], "seasonings": [], "oils": [], "miscellaneous": ["Seaweed", "Wasabi"]}',
-            "Customize your sushi with fresh salmon, avocado, cucumber, and perfectly seasoned rice, all wrapped in crisp nori seaweed.",
+            "• 2 cups sushi rice\n• 4 sheets nori\n• 100g raw salmon, sliced\n• 1/2 cucumber, sliced\n• 1/2 avocado, sliced\n• Soy sauce, to serve\n• Wasabi, to serve",
+            '{"gluten": [], "seafood": ["Salmon"], "vegetables": ["Cucumber", "Avocado"], "condiments": ["Soy Sauce"], "miscellaneous": ["Nori", "Wasabi"]}',
+            "1. Cook sushi rice and let cool.\n2. Lay nori on bamboo mat.\n3. Spread rice evenly over nori.\n4. Add salmon, cucumber, and avocado.\n5. Roll tightly and slice.\n6. Serve with soy sauce and wasabi.",
             '{"type_of_meal": ["Lunch"], "cuisine": ["Japanese"], "taste": ["Light"]}',
             "images/mario_party_super.jpg"
         ),
-
         (
             3,
             "Classic Pancakes",
             "Fluffy breakfast pancakes with maple syrup.",
-            "• flour\n• eggs\n• milk\n• baking powder\n• sugar\n• butter\n• maple syrup",
-            '{"gluten": ["Flour"], "dairy": ["Milk", "Butter"], "non-hindu_meat": [], "hindu_meat": [], "seafood": [], "non-vegan": ["Eggs"], "vegetables": [], "fruits": [], "legumes": [], "nuts": [], "condiments": ["Maple Syrup"], "seasonings": ["Sugar", "Baking Powder"], "oils": [], "miscellaneous": []}',
-            "Soft and golden pancakes made from scratch, served warm with butter and maple syrup for the perfect morning treat.",
+            "• 1 cup flour\n• 2 eggs\n• 1 cup milk\n• 2 tsp baking powder\n• 2 tbsp sugar\n• 2 tbsp butter, melted\n• Maple syrup, to serve",
+            '{"gluten": ["Flour"], "dairy": ["Milk", "Butter"], "non-vegan": ["Eggs"], "condiments": ["Maple Syrup"], "seasonings": ["Sugar", "Baking Powder"]}',
+            "1. Whisk flour, baking powder, and sugar.\n2. Add milk, eggs, and butter. Mix until smooth.\n3. Heat pan and pour batter.\n4. Cook until bubbles form, then flip.\n5. Serve with maple syrup.",
             '{"type_of_meal": ["Breakfast"], "taste": ["Sweet"], "cuisine": ["American"]}',
             "images/new_horizons.jpg"
         ),
-
         (
             4,
             "Pad Thai",
             "Tangy and sweet Thai stir-fried noodles.",
-            "• rice noodles\n• tofu\n• shrimp\n• egg\n• peanuts\n• tamarind paste\n• garlic\n• bean sprouts",
-            '{"gluten": ["Rice Noodles"], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": ["Shrimp"], "non-vegan": ["Egg"], "vegetables": ["Garlic", "Bean Sprouts"], "fruits": [], "legumes": ["Tofu"], "nuts": ["Peanuts"], "condiments": [], "seasonings": [], "oils": [], "miscellaneous": ["Tamarind Paste"]}',
-            "Rice noodles stir-fried with tofu, shrimp, eggs, peanuts, and a flavorful tamarind-based sauce, garnished with fresh bean sprouts.",
-            '{"type_of_meal": ["Dinner"], "cuisine": ["Thai"], "style": ["Noodles"]}',
+            "• 200g rice noodles\n• 100g tofu, cubed\n• 100g shrimp\n• 1 egg\n• 2 tbsp crushed peanuts\n• 2 tbsp tamarind paste\n• 2 cloves garlic, minced\n• 1 cup bean sprouts",
+            '{"gluten": [], "seafood": ["Shrimp"], "non-vegan": ["Egg"], "vegetables": ["Garlic", "Bean Sprouts"], "legumes": ["Tofu"], "nuts": ["Peanuts"], "miscellaneous": ["Tamarind Paste"]}',
+            "1. Soak noodles in warm water until soft.\n2. Sauté garlic, then add shrimp and tofu.\n3. Push aside, scramble egg in pan.\n4. Add noodles, tamarind paste, and mix well.\n5. Stir in bean sprouts and peanuts.\n6. Serve hot.",
+            '{"type_of_meal": ["Dinner"], "cuisine": ["Thai"], "style": ["Stir-fried"]}',
             "images/pokemon_violet.jpg"
         ),
-
         (
             5,
             "Beef Tacos",
             "Seasoned beef in warm tortillas with toppings.",
-            "• ground beef\n• taco seasoning\n• tortillas\n• cheddar cheese\n• lettuce\n• salsa\n• sour cream",
-            '{"gluten": ["Tortillas"], "dairy": ["Cheese", "Sour Cream"], "non-hindu_meat": ["Beef"], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": ["Lettuce"], "fruits": [], "legumes": [], "nuts": [], "condiments": ["Salsa"], "seasonings": ["Taco Seasoning"], "oils": [], "miscellaneous": []}',
-            "Spicy ground beef seasoned with taco spices, served in crispy or soft tortillas with cheese, lettuce, and salsa for a tasty Mexican meal.",
+            "• 250g ground beef\n• 1 packet taco seasoning\n• 6 small tortillas\n• 1/2 cup shredded cheddar\n• 1 cup shredded lettuce\n• 1/2 cup salsa\n• 1/4 cup sour cream",
+            '{"gluten": ["Tortillas"], "dairy": ["Cheddar", "Sour Cream"], "non-hindu_meat": ["Beef"], "vegetables": ["Lettuce"], "condiments": ["Salsa"], "seasonings": ["Taco Seasoning"]}',
+            "1. Cook beef in pan. Add taco seasoning.\n2. Warm tortillas.\n3. Assemble with beef, cheese, lettuce, salsa, and sour cream.\n4. Serve immediately.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Mexican"], "taste": ["Spicy"]}',
             "images/kirby_dream_land.jpg"
         ),
-
         (
             6,
             "Avocado Toast",
             "Creamy avocado on toasted sourdough bread.",
-            "• avocado\n• sourdough bread\n• lemon juice\n• salt\n• pepper\n• chili flakes\n• eggs",
-            '{"gluten": [], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": [], "fruits": [], "legumes": [], "nuts": [], "condiments": [], "seasonings": [], "oils": [], "miscellaneous": []}',
-            "Simple and healthy, mashed avocado seasoned with lemon and spices served on crispy toasted sourdough, optionally topped with eggs or chili flakes.",
+            "• 1 avocado\n• 2 slices sourdough bread\n• 1 tsp lemon juice\n• Salt to taste\n• Pepper to taste\n• Chili flakes (optional)\n• 1 egg, poached or fried (optional)",
+            '{"gluten": ["Sourdough Bread"], "non-vegan": ["Eggs"], "fruits": ["Avocado", "Lemon"], "seasonings": ["Salt", "Pepper", "Chili Flakes"]}',
+            "1. Toast the bread.\n2. Mash avocado with lemon, salt, and pepper.\n3. Spread on toast.\n4. Top with chili flakes and egg if using.",
             '{"type_of_meal": ["Breakfast"], "taste": ["Healthy"], "diet": ["Vegetarian"]}',
             "images/splatoon3.jpg"
         ),
-
         (
             7,
             "Butter Chicken",
             "Rich and creamy Indian butter chicken curry.",
-            "• chicken\n• butter\n• tomato sauce\n• cream\n• garlic\n• ginger\n• garam masala\n• cumin",
-            '{"gluten": [], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": [], "fruits": [], "legumes": [], "nuts": [], "condiments": [], "seasonings": [], "oils": [], "miscellaneous": []}',
-            "Tender chicken pieces cooked in a luscious tomato and butter sauce, infused with aromatic spices and cream for a melt-in-your-mouth flavor.",
+            "• 300g chicken breast, cubed\n• 2 tbsp butter\n• 1 cup tomato sauce\n• 1/2 cup cream\n• 2 cloves garlic, minced\n• 1 tsp grated ginger\n• 1 tsp garam masala\n• 1 tsp ground cumin",
+            '{"non-hindu_meat": ["Chicken"], "dairy": ["Butter", "Cream"], "vegetables": ["Garlic"], "seasonings": ["Garam Masala", "Cumin", "Ginger"]}',
+            "1. Sauté garlic and ginger in butter.\n2. Add chicken and cook until browned.\n3. Add tomato sauce and spices.\n4. Simmer for 15 mins.\n5. Stir in cream and cook 5 more mins.\n6. Serve hot.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Indian"], "taste": ["Creamy"]}',
             "images/smash_bros_ultimate.jpg"
         ),
-
         (
             8,
             "Vegetable Stir Fry",
             "Quick and colorful vegetable stir-fry.",
-            "• broccoli\n• bell pepper\n• carrot\n• soy sauce\n• garlic\n• sesame oil\n• ginger",
-            '{"gluten": [], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": [], "fruits": [], "legumes": [], "nuts": [], "condiments": [], "seasonings": [], "oils": [], "miscellaneous": []}',
-            "A medley of fresh vegetables tossed in a savory soy and sesame sauce, perfect as a light and healthy dinner or side dish.",
+            "• 1 cup broccoli florets\n• 1 bell pepper, sliced\n• 1 carrot, julienned\n• 2 tbsp soy sauce\n• 2 cloves garlic, minced\n• 1 tbsp sesame oil\n• 1 tsp grated ginger",
+            '{"vegetables": ["Broccoli", "Bell Pepper", "Carrot", "Garlic", "Ginger"], "condiments": ["Soy Sauce"], "oils": ["Sesame Oil"]}',
+            "1. Heat sesame oil in wok.\n2. Add garlic and ginger.\n3. Stir-fry vegetables until tender.\n4. Add soy sauce and stir.\n5. Serve hot.",
             '{"type_of_meal": ["Dinner"], "diet": ["Vegan"], "taste": ["Quick"]}',
             "images/cooking_mama.jpg"
         ),
-
         (
             9,
             "Chocolate Chip Cookies",
             "Chewy homemade chocolate chip cookies.",
-            "• flour\n• sugar\n• butter\n• eggs\n• vanilla extract\n• baking soda\n• chocolate chips",
-            '{"gluten": [], "dairy": [], "non-hindu_meat": [], "hindu_meat": [], "seafood": [], "non-vegan": [], "vegetables": [], "fruits": [], "legumes": [], "nuts": [], "condiments": [], "seasonings": [], "oils": [], "miscellaneous": []}',
-            "Classic cookies loaded with chocolate chips, crispy on the edges and soft inside, perfect for dessert or a sweet snack.",
+            "• 2 cups flour\n• 1 cup sugar\n• 1/2 cup butter\n• 2 eggs\n• 1 tsp vanilla extract\n• 1 tsp baking soda\n• 1 cup chocolate chips",
+            '{"gluten": ["Flour"], "dairy": ["Butter"], "non-vegan": ["Eggs"], "seasonings": ["Sugar", "Baking Soda"], "miscellaneous": ["Chocolate Chips"]}',
+            "1. Cream butter and sugar.\n2. Add eggs and vanilla. Mix.\n3. Stir in flour, baking soda, and chips.\n4. Scoop dough onto tray.\n5. Bake at 180°C for 10–12 mins.\n6. Cool before serving.",
             '{"type_of_meal": ["Dessert"], "taste": ["Sweet"], "style": ["Baked"]}',
             "images/switch_sports.jpg"
         )
     ]
+
 
 
     for recipe in recipe_data:
