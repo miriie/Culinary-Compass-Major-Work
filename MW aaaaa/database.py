@@ -99,7 +99,7 @@ def add_recipe_entries():
             '{"gluten": ["Spaghetti"], "dairy": ["Parmesan"], "non-hindu_meat": ["Beef"], "vegetables": ["Onion", "Garlic", "Tomato"], "seasonings": ["Basil"], "oils": ["Olive Oil"]}',
             "1. Cook the spaghetti according to package instructions. Drain and set aside.\n2. Heat olive oil in a pan. Sauté onion until soft.\n3. Add garlic and cook briefly.\n4. Brown the beef in the pan.\n5. Stir in tomatoes and basil. Simmer 20 minutes.\n6. Season to taste and serve over spaghetti with parmesan.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Italian"], "taste": ["Savory", "Comfort Food"]}',
-            "images/pikmin4.jpg"
+            "images/spaghetti.jpg"
         ),
         (
             2,
@@ -109,7 +109,7 @@ def add_recipe_entries():
             '{"gluten": [], "seafood": ["Salmon"], "vegetables": ["Cucumber", "Avocado"], "condiments": ["Soy Sauce"], "miscellaneous": ["Nori", "Wasabi"]}',
             "1. Cook sushi rice and let cool.\n2. Lay nori on bamboo mat.\n3. Spread rice evenly over nori.\n4. Add salmon, cucumber, and avocado.\n5. Roll tightly and slice.\n6. Serve with soy sauce and wasabi.",
             '{"type_of_meal": ["Lunch"], "cuisine": ["Japanese"], "taste": ["Light"]}',
-            "images/mario_party_super.jpg"
+            "images/sushi.jpg"
         ),
         (
             3,
@@ -119,7 +119,7 @@ def add_recipe_entries():
             '{"gluten": ["Flour"], "dairy": ["Milk", "Butter"], "non-vegan": ["Eggs"], "condiments": ["Maple Syrup"], "seasonings": ["Sugar", "Baking Powder"]}',
             "1. Whisk flour, baking powder, and sugar.\n2. Add milk, eggs, and butter. Mix until smooth.\n3. Heat pan and pour batter.\n4. Cook until bubbles form, then flip.\n5. Serve with maple syrup.",
             '{"type_of_meal": ["Breakfast"], "taste": ["Sweet"], "cuisine": ["American"]}',
-            "images/new_horizons.jpg"
+            "images/pancakes.jpg"
         ),
         (
             4,
@@ -129,7 +129,7 @@ def add_recipe_entries():
             '{"gluten": [], "seafood": ["Shrimp"], "non-vegan": ["Egg"], "vegetables": ["Garlic", "Bean Sprouts"], "legumes": ["Tofu"], "nuts": ["Peanuts"], "miscellaneous": ["Tamarind Paste"]}',
             "1. Soak noodles in warm water until soft.\n2. Sauté garlic, then add shrimp and tofu.\n3. Push aside, scramble egg in pan.\n4. Add noodles, tamarind paste, and mix well.\n5. Stir in bean sprouts and peanuts.\n6. Serve hot.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Thai"], "style": ["Stir-fried"]}',
-            "images/pokemon_violet.jpg"
+            "images/padthai.jpg"
         ),
         (
             5,
@@ -139,7 +139,7 @@ def add_recipe_entries():
             '{"gluten": ["Tortillas"], "dairy": ["Cheddar", "Sour Cream"], "non-hindu_meat": ["Beef"], "vegetables": ["Lettuce"], "condiments": ["Salsa"], "seasonings": ["Taco Seasoning"]}',
             "1. Cook beef in pan. Add taco seasoning.\n2. Warm tortillas.\n3. Assemble with beef, cheese, lettuce, salsa, and sour cream.\n4. Serve immediately.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Mexican"], "taste": ["Spicy"]}',
-            "images/kirby_dream_land.jpg"
+            "images/taco.jpg"
         ),
         (
             6,
@@ -149,7 +149,7 @@ def add_recipe_entries():
             '{"gluten": ["Sourdough Bread"], "non-vegan": ["Eggs"], "fruits": ["Avocado", "Lemon"], "seasonings": ["Salt", "Pepper", "Chili Flakes"]}',
             "1. Toast the bread.\n2. Mash avocado with lemon, salt, and pepper.\n3. Spread on toast.\n4. Top with chili flakes and egg if using.",
             '{"type_of_meal": ["Breakfast"], "taste": ["Healthy"], "diet": ["Vegetarian"]}',
-            "images/splatoon3.jpg"
+            "images/avocadotoast.jpg"
         ),
         (
             7,
@@ -159,7 +159,7 @@ def add_recipe_entries():
             '{"non-hindu_meat": ["Chicken"], "dairy": ["Butter", "Cream"], "vegetables": ["Garlic"], "seasonings": ["Garam Masala", "Cumin", "Ginger"]}',
             "1. Sauté garlic and ginger in butter.\n2. Add chicken and cook until browned.\n3. Add tomato sauce and spices.\n4. Simmer for 15 mins.\n5. Stir in cream and cook 5 more mins.\n6. Serve hot.",
             '{"type_of_meal": ["Dinner"], "cuisine": ["Indian"], "taste": ["Creamy"]}',
-            "images/smash_bros_ultimate.jpg"
+            "images/butterchicken.jpg"
         ),
         (
             8,
@@ -169,7 +169,7 @@ def add_recipe_entries():
             '{"vegetables": ["Broccoli", "Bell Pepper", "Carrot", "Garlic", "Ginger"], "condiments": ["Soy Sauce"], "oils": ["Sesame Oil"]}',
             "1. Heat sesame oil in wok.\n2. Add garlic and ginger.\n3. Stir-fry vegetables until tender.\n4. Add soy sauce and stir.\n5. Serve hot.",
             '{"type_of_meal": ["Dinner"], "diet": ["Vegan"], "taste": ["Quick"]}',
-            "images/cooking_mama.jpg"
+            "images/vegstirfry.jpg"
         ),
         (
             9,
@@ -179,7 +179,7 @@ def add_recipe_entries():
             '{"gluten": ["Flour"], "dairy": ["Butter"], "non-vegan": ["Eggs"], "seasonings": ["Sugar", "Baking Soda"], "miscellaneous": ["Chocolate Chips"]}',
             "1. Cream butter and sugar.\n2. Add eggs and vanilla. Mix.\n3. Stir in flour, baking soda, and chips.\n4. Scoop dough onto tray.\n5. Bake at 180°C for 10–12 mins.\n6. Cool before serving.",
             '{"type_of_meal": ["Dessert"], "taste": ["Sweet"], "style": ["Baked"]}',
-            "images/switch_sports.jpg"
+            "images/cookies.jpg"
         )
     ]
 

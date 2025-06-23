@@ -52,7 +52,11 @@
             
             <p><strong>Instructions:</strong></p>
             <div id="recipe-instructions">
-                <p id="instructions-text">{{ recipe['instructions']|replace('\n', '<br>')|safe }}</p>
+                <div id="instructions-text">
+                    {% for line in recipe['instructions'].split('\n') %}
+                        <p>{{ line }}</p>
+                    {% endfor %}
+                </div>
             </div>
 
             <p><strong>Tags:</strong>
