@@ -446,7 +446,6 @@ def post():
             else:
                 connection.close()
                 return "Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed.", 400
-   
 
         if recipe_id:
             if not recipe_image_filename:  # if user didn't upload a new image
