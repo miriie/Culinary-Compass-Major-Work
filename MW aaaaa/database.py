@@ -20,7 +20,9 @@ def initialise_database():
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         profile_picture TEXT NOT NULL,
-        is_admin INTEGER DEFAULT 0
+        is_admin INTEGER DEFAULT 0,
+        failed_attempts INTEGER DEFAULT 0,
+        lockout_timer TIMESTAMP NULL
     );'''
 
     create_table_recipes = '''
@@ -234,6 +236,7 @@ def add_dummy_users():
         else:
             print(f"User '{username}' already exists. Skipping.")
 
+    cursor.execute('''UPDATE users SET is_admin = 1 WHERE username = "mire"''')
     connection.commit()
     connection.close()
 

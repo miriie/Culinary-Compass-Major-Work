@@ -52,7 +52,7 @@
             
             <p><strong>Instructions:</strong></p>
             <div id="recipe-instructions">
-                <p id="instructions-text">{{ recipe['instructions']|safe }}</p>
+                <p id="instructions-text">{{ recipe['instructions']|replace('\n', '<br>')|safe }}</p>
             </div>
 
             <p><strong>Tags:</strong>

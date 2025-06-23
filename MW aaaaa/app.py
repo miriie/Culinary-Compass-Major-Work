@@ -1,6 +1,6 @@
 import random
 from flask import Flask, render_template, redirect, url_for, session, request, make_response, send_from_directory
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import sqlite3
 import bcrypt
@@ -467,33 +467,60 @@ def post():
         return redirect(url_for('recipe_page', recipe_id=recipe_id))
     return render_template('post.html', tag_categories=tag_categories, selected_tags=selected_tags, ingredient_tags=ingredient_tags, selected_ingredients=selected_ingredients, recipe_data=recipe_data, editing=bool(recipe_id))
 
-@app.route("/login", methods= ["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     connection = get_db_connection()
-    
+    cursor = connection.cursor()
+
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
-        cursor = connection.cursor()
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         existing_user = cursor.fetchone()
-    
 
         if existing_user:
+            # Extract user data
             user_id = existing_user[0]
             db_password = existing_user[2]
+            failed_attempts = existing_user[5] or 0
+            lockout_timer = existing_user[6]
+
+            now = datetime.utcnow()
+
+            # Check lockout
+            if lockout_timer:
+                lockout_dt = datetime.strptime(lockout_timer, '%Y-%m-%d %H:%M:%S.%f')
+                if lockout_dt > now - timedelta(minutes=5):
+                    minutes_left = int(((lockout_dt + timedelta(minutes=5)) - now).total_seconds() // 60) + 1
+                    return render_template("login.html", message=f"Too many failed login attempts. Try again in {minutes_left} minutes.")
+
+            # Check password
             if bcrypt.checkpw(password.encode('utf-8'), db_password):
+                # Reset failed attempts and lockout
+                cursor.execute("UPDATE users SET failed_attempts = 0, lockout_timer = NULL WHERE id = ?", (user_id,))
+                connection.commit()
+
+                # Setup session
                 session["user_id"] = user_id
-                session['is_admin'] = existing_user['is_admin']
+                session['is_admin'] = existing_user[4]
                 session["username"] = existing_user[1]
                 session["profile_picture"] = existing_user[3]
                 session["logged_in"] = True
                 return redirect(url_for('homepage'))
+
             else:
+                # Failed login
+                failed_attempts += 1
+                if failed_attempts >= 3:
+                    cursor.execute("UPDATE users SET failed_attempts = ?, lockout_timer = ? WHERE id = ?", (failed_attempts, now, user_id))
+                else:
+                    cursor.execute("UPDATE users SET failed_attempts = ? WHERE id = ?", (failed_attempts, user_id))
+                connection.commit()
+
                 return render_template("login.html", message="Error: Wrong username or password")
         else:
-            return render_template("login.html", message= "Error: User does not exist")
+            return render_template("login.html", message="Error: User does not exist")
+
     return render_template("login.html")
 
 @app.route('/logout')
