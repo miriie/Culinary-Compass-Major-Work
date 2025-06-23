@@ -24,6 +24,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 @app.route('/static/serviceWorker.js')
 def sw():
@@ -507,6 +508,7 @@ def login():
                 connection.commit()
 
                 # Setup session
+                session.permanent = True
                 session["user_id"] = user_id
                 session['is_admin'] = existing_user[4]
                 session["username"] = existing_user[1]
