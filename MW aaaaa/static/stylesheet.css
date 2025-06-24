@@ -96,6 +96,13 @@ a {
   align-items: stretch;
 }
 
+.content-wrapper.guest-view {
+  display: block;
+  gap: 20px;
+  padding: 20px;
+  align-items: stretch;
+}
+
 /* Left Section: Recipe Info */
 .recipe-info {
   width: 70%;
@@ -103,6 +110,14 @@ a {
   border-radius: 10px;
   padding: 20px;
   text-align: left;
+}
+
+.recipe-info.guest-view {
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  float: none;
+  display: block;
 }
 
 .recipe-info h1,
@@ -168,18 +183,20 @@ a {
 
 /* Recipe Image */
 .recipe-image-container {
-    text-align: center;
-    margin: 20px 0;
+  text-align: center;
+  margin: 20px 0;
 }
 
 .recipe-main-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  width: 60%;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* Reviews Section */
+/* Reviews Section */ 
 .reviews-section {
   margin: 20px 0;
   padding: 20px;

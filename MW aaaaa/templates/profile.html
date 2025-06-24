@@ -12,7 +12,7 @@
         {% if session.get('user_id') == user['id'] %}
             <br>
             <a href="{{ url_for('post') }}" class="submit-button">Post a Recipe</a>
-            <a href="{{ url_for('logout') }}" class="logout-button">Logout</a>
+            <a style="text-decoration: underline;" href="{{ url_for('logout') }}" class="logout-button">Logout</a>
         {% endif %}      
     </div>
 
