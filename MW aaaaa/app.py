@@ -542,15 +542,11 @@ def register():
     
     images = [
         "clover.png", 
-        "redpik.png", 
-        "bluepik.png", 
-        "yellowpik.png",
-        "purplepik.png",
-        "whitepik.png",
-        "rockpik.png",
-        "icepik.png",
-        "wingpik.png",
-        "glowpik.png"
+        "toast.png", 
+        "cookie.png", 
+        "icecream.png",
+        "apple.png",
+        "pear.png"
     ]
 
     if request.method == "POST":

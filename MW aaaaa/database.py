@@ -207,15 +207,15 @@ def add_dummy_users():
 
     users_data = [
         ("user1234", "password123", "images/clover.png"),
-        ("pik", "securepass", "images/purplepik.png"),
-        ("user1", "mypassword", "images/wingpik.png"),
-        ("user2", "letmein", "images/yellowpik.png"),
-        ("user3", "hunter2", "images/rockpik.png"),
-        ("user4", "password4", "images/glowpik.png"),
-        ("rice", "firebird", "images/redpik.png"),
-        ("delta", "triangular", "images/icepik.png"),
-        ("mire", "fending", "images/whitepik.png"),
-        ("bud", "oldpal", "images/bluepik.png")
+        ("pik", "securepass", "images/toast.png"),
+        ("user1", "mypassword", "images/toast.png"),
+        ("user2", "letmein", "images/icecream.png"),
+        ("user3", "hunter2", "images/icecream.png"),
+        ("user4", "password4", "images/cookie.png"),
+        ("rice", "firebird", "images/cookie.png"),
+        ("delta", "triangular", "images/pear.png"),
+        ("mire", "fending", "images/pear.png"),
+        ("bud", "oldpal", "images/apple.png")
     ]
 
     for username, password, picture in users_data:
@@ -241,15 +241,15 @@ def add_dummy_reviews():
 
     reviews_data = [
         ('Spaghetti Bolognese', 5, 'Best recipe ever!', 'Epic Flavour', '2024-12-01', 'images/clover.png', 'user1234'),
-        ('Spaghetti Bolognese', 5, 'Simply amazing and authentic!', 'Masterpiece', '2024-12-02', 'images/wingpik.png', 'user1'),
-        ('Sushi Rolls', 3, 'Good but rolling was a challenge.', 'Needs Practice', '2024-12-03', 'images/redpik.png', 'rice'),
-        ('Classic Pancakes', 2, 'Kept burning the pancakes, sad!', 'Kitchen Fail', '2024-12-11', 'images/rockpik.png', 'user3'),
-        ('Pad Thai', 4, 'Loved the sweet and tangy flavors!', 'Great Taste', '2024-11-30', 'images/glowpik.png', 'user4'),
-        ('Beef Tacos', 2, 'Meat was too dry, needs improvement.', 'Dry Meat', '2024-12-05', 'images/rockpik.png', 'user3'),
-        ('Avocado Toast', 4, 'Simple and healthy, perfect breakfast.', 'Fresh Start', '2024-12-06', 'images/icepik.png', 'delta'),
-        ('Butter Chicken', 4, 'Rich and creamy, just like restaurant style!', 'Restaurant Quality', '2024-12-07', 'images/purplepik.png', 'pik'),
-        ('Vegetable Stir Fry', 3, 'Quick and tasty but a bit salty.', 'Salty', '2024-12-08', 'images/whitepik.png', 'mire'),
-        ('Chocolate Chip Cookies', 4, 'Chewy and delicious, kids loved them!', 'Sweet Treat', '2024-12-10', 'images/bluepik.png', 'bud')
+        ('Spaghetti Bolognese', 5, 'Simply amazing and authentic!', 'Masterpiece', '2024-12-02', 'images/toast.png', 'user1'),
+        ('Sushi Rolls', 3, 'Good but rolling was a challenge.', 'Needs Practice', '2024-12-03', 'images/cookie.png', 'rice'),
+        ('Classic Pancakes', 2, 'Kept burning the pancakes, sad!', 'Kitchen Fail', '2024-12-11', 'images/icecream.png', 'user2'),
+        ('Pad Thai', 4, 'Loved the sweet and tangy flavors!', 'Great Taste', '2024-11-30', 'images/cookie.png', 'user4'),
+        ('Beef Tacos', 2, 'Meat was too dry, needs improvement.', 'Dry Meat', '2024-12-05', 'images/icecream.png', 'user3'),
+        ('Avocado Toast', 4, 'Simple and healthy, perfect breakfast.', 'Fresh Start', '2024-12-06', 'images/pear.png', 'delta'),
+        ('Butter Chicken', 4, 'Rich and creamy, just like restaurant style!', 'Restaurant Quality', '2024-12-07', 'images/toast.png', 'pik'),
+        ('Vegetable Stir Fry', 3, 'Quick and tasty but a bit salty.', 'Salty', '2024-12-08', 'images/pear.png', 'mire'),
+        ('Chocolate Chip Cookies', 4, 'Chewy and delicious, kids loved them!', 'Sweet Treat', '2024-12-10', 'images/apple.png', 'bud')
     ]
 
     for recipe_title, rating, review_text, review_title, review_date, profile_pic, username in reviews_data:
